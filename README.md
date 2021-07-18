@@ -52,7 +52,7 @@ classical notion of a 2 dimensional scoring system. There are many good books
 on this subject, see for example __Introduction to Rubrics__ by Stevens and
 Levi, 2005.  The following example rubric is taken from this book:
 
-![Example Rubric, Stevens 2005](https://github.com/Dave-Gilbert/rgen/blob/master/images/Stevens_Example_Rubric_p70.png)
+![Example Rubric, Stevens 2005](https://github.com/Dave-Gilbert/rgen/blob/main/images/Stevens_Example_Rubric_p70.png)
 
 In my teaching of college student's I tried to apply this technique with
 spreadsheets. I would grade a few homework answers to get a sense of what students
