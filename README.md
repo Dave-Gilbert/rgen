@@ -69,5 +69,65 @@ submission that required some additional attention. Merging this data at the
 end of a course was also time consuming. While a spreadsheet could nicely
 handle addition, it didn't help much with data management or file management.
 
-# 
+## RGEN Student View Report
+
+The goal is to automatically generate a custom grade sheet for each student.
+The following grade sheet was discussed in a recent lecture and used average
+scores, and typical comments supplied for students. Questions 2 through 7 were
+automatically graded by the LMS and these scores are copied in to RGEN.
+Unfortunately myCanvas, the LMS currently in use by Mohawk College has no way
+to export test answers, so multiple choice scores must be re-entered. The real
+work is saved in the comments for the long answer questions which can be quite
+complicated. 
+
+![Example Student Grade Sheet](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_1.png)
+
+Scores can be supplied in 3 formats, 2 are shown in the preceding example. A
+fixed value score can be entered, this strategy is used in Q1 through Q7. Q8,
+Q9 and Q10 deduct a fixed number of points from a total, assigning various
+weights, and reasoning to each question.
+
+When grading a question, the instructor may choose to grade a single question
+or a small group of questions in sequence for each student. Grading groups of
+similar questions helps to keep the details and related issues together. The
+following menu is used to add comments to an individual question. The menu
+at the top provides a list of comments and their associated scores which
+the instructor may select from. The generator modifies the score for the
+question as comments are added. In this example the student has made 3
+common mistakes, and scores 5/10 total. 
+
+![Example Student Evaluating Q](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_2.png)
+
+In the above example the menu presents a list of 14 different possible
+comments. Some comments have fixed point values assigned to them, i.e. 
+"0 no answer" and "10 Good". Some comments have no point value associated with them.
+For this particular test the course had 40 students, and the collection of 14
+comments was developed while grading this question. For this question typically
+students got between 1 and 4 comments. The question description includes a
+reference to a lecture which discussed a similar problem.
+
+The Rubric editor is accessible from the question grading menu.
+
+![Example Editing Rubric](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_3.png)
+
+New comments can be added to the rubric, or existing comments can be modified at any point.
+
+
+If an existing comment's score is modified and many students have had that
+comment applied already, the system will recalculate grades. This can lead to
+some surprising results. Rgen includes a check for questions that go over the
+maximum score for the question or under the minimum and will generate a warning
+until scores fit within the prescribed maximum and minimums.
+
+![Example Editing Rubric](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_4.png)
+
+Comment's are numbered internally in the order that they are created, but the order of presentation
+can be modified. In the above example comments are grouped by type and severity. This makes finding a comment in a list easier. The same order is generated in the student's version which can help with clarity.
+
+![Example Editing Rubric](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_5.png)
+
+A very useful feature provided by rgen is the ability to search for students who have received a particlar comment. This can help with providing consistency, or gaining an understanding of who is struggling in the course with a particular concept. In the following search result, 4 students did not answer question #8. This same group also did quite poorly on the test as this summary screen shows. The first student "Be" asked to be excused from the test. Question #99 is only shown in the instructor's view and includes the '%' symbol hinting that this student's grade will need special calculation at some point. The others struggled with the rest of the test
+
+![Example Search](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_6.png)
+
 
