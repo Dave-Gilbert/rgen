@@ -79,7 +79,7 @@ figure out a good way to merge several multi-page spreadsheets automatically.
 
 ## RGEN Student-View, Final Report
 
-Rgen's purpose to automatically generate a custom grade sheet for each student,
+Rgen's purpose is to automatically generate a custom grade sheet for each student,
 and merge those sheets into a single end of term report for the course.
 
 The following table shows grades collected for the first term test for an
