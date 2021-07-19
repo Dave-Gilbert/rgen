@@ -79,12 +79,16 @@ figure out a good way to merge several multi-page spreadsheets automatically.
 
 ## RGEN Student-View, Final Report
 
-Rgen's purpose to automatically generate a custom grade sheet for each student, and merge those sheets into a single end of year report. 
+Rgen's purpose to automatically generate a custom grade sheet for each student,
+and merge those sheets into a single end of term report for the course.
 
 The following table shows grades collected for the first term test for an
 introductory course in computer programming. Each row in the table summarizes
-the grades for a single student. This birds eye perspective shows per question
+the test results for a single student. This birds eye perspective shows per question
 averages giving a detailed snapshot into the first term test for the course.
+
+The table is also a menu, by highlighting a specific student the detailed
+comments given for each question can be viewed.
 
 ![Example Student Grade Sheet](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_10.png)
 
@@ -98,15 +102,17 @@ generating comments for the long answer questions, and the grade tabulation.
 ![Example Student Grade Sheet](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_1.png)
 
 Scores are tabulated in several ways, 2 are shown in the preceding example.  A
-fixed value score can be entered, this strategy is used in questions 1 through
-7 where a comment is attached to a score for the question. Questions 8, 9 and
-10 deduct points from a total for various mistakes. Each deduction includes an
-explanatory comment. The system includes obvious error checks that prevent
-negative scores, or providing multiple contradictory fixed scores.  
+fixed value score can be entered, this strategy is used in questions 1 - 7.
+Questions 8, 9 and 10 were scored by deducting points from a total. Each
+deduction includes an explanatory comment. Rgen includes error checks that
+prevent negative scores and prevent multiple contradictory fixed scores.
+Rgen also support additive comments, where scoring starts at zero and each
+comment adds points to the total. Mixing too many scoring strategies can
+be confusing so this test does not illustrate the additive strategy.
 
 While MyCanvas will not export grades on a per question basis it will export
 full grade sheets. In the case of multiple choice quizzes which are
-automatically graded within myCanvas, these scores can be downloaded and merged
+automatically graded within MyCanvas, these scores can be downloaded and merged
 with other data collected by Rgen. The following view shows a partial grade
 calculation which includes several course assignments, although the second term
 test, final assignment and final exam have not yet been added to the totals. 
@@ -120,18 +126,18 @@ with students about their progress in the course.
 
 When grading a question, the instructor may choose to grade a single question
 or a small group of questions in sequence for each student. The following menu
-is used to provide notes for the student for a single question. The menu at the
+is used to provide comments and grades for a single question. The menu at the
 top shows a list of comments and their associated scores which the instructor
 may select from. Rgen computes the total score for the question as comments
-are added. In this example the student has made 3 common mistakes, and scores
+are appended. In this example the student has made 3 common mistakes, and scores
 5/10 total. 
 
 ![Example Student Evaluating Q](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_2.png)
 
 The menu presents a list of 14 different possible comments.  Some comments have
-fixed point values assigned to them, i.e.  "0 no answer" and "10 Good". Some
-comments have no point value associated with them, others show -2, or -4
-points. 
+fixed point values assigned to them, i.e.  "0   no answer" and "10    Good". Some
+comments have no point value associated with them, others show -1, -2, or -4 and 
+are meant to be selected in combination. 
 
 ## RGEN Modifying a Rubric
 
@@ -144,7 +150,7 @@ New comments can be added to the rubric, or existing comments can be modified at
 If an existing comment's score is modified and several students have received
 the comment, the system will recalculate all grades. This can lead to some
 surprising results. Rgen includes a check for question scores that go over the
-maximum or under the minimum and will generate a warning until scores fit
+maximum or under the minimum and will generate a warning until all scores fit
 within the prescribed ranges.
 
 ![Example Editing Rubric](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_4.png)
@@ -152,10 +158,11 @@ within the prescribed ranges.
 Comment codes are exposed when grading student work, they include a decimal
 point, "Q8.1", "Q8.2" etc., but are hidden in the student view.  Comments are
 numbered internally in the order that they are created, but the order of
-presentation can be modified by editing the rubric. In the above example
-comments are grouped by type and severity. This makes finding a comment in a
-list easier. The same order is generated in the student's version which can
-help with clarity, again by keeping related remarks grouped.
+presentation can be modified by editing the rubric and moving comments either
+up or down in the selection menus. In the above example comments are grouped by
+type and severity. This makes finding a comment in a list easier. The same
+order is generated in the student's version which can help with clarity, again
+by keeping related remarks grouped.
 
 ## RGEN Searching for Students with particular Comments
 
@@ -190,9 +197,8 @@ scores.
 
 ![Data Import](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_8.png)
 
-
 Rgen computes a grade in progress for each student as well as adding up the
-number of hours the student has attended Zoom lectures for. Zoom has a feature
+number of hours the student has attended Zoom lectures. Zoom has a feature
 where it can require that students log in only with an e-mail address from a
 specific domain. When that address is restricted to the mohawkcollege.ca
 domain, Zoom's report can be downloaded and student's attendance records can be
@@ -206,13 +212,13 @@ lectures, or not.
 Special notes are tracked with symbols in the last column. These notes can be
 added to tests or to the root student record. A few symbols are built in with
 various suggested meanings including '!', '\*', '%', and '?'. Keeping track of
-who has made unusual requests, has missed an evaluation, or has made a
-complaint about a grade can be helpful as the course progresses.
+who has made unusual requests, has missed an evaluation, or has a special
+accommodation can be helpful as the course progresses.
 
 From the top level student information view the individual student's detailed
 records can be viewed. This same view will also show the details for any
 special notes that are relevant to this student. This view can also be used to
-drill down into the individual assignments and review or edit their details.
+drill down into the individual assignments and review or edit details.
 
 ![Top Level Info](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_9.png)
 
@@ -220,20 +226,13 @@ drill down into the individual assignments and review or edit their details.
 
 Prior to using this rubric generating tool I used a variety of different
 grading strategies. 20 years ago when I was in graduate school the norm was to
-sit down with stack of printed student assignments and write on each with a
-pen. I found this style of grading extremely difficult. I've only worked at the
+sit down with a hardcopy stack of student assignments and write on each with a
+red pen. I found this style of grading extremely difficult. I've only worked at the
 college for a few years. During my first year at the I relearned how to use a
 spreadsheet, following the lead of senior staff who would often communicate
-grading template in this format. MyCanvas, the learning management system used
+grading templates in this format. MyCanvas, the learning management system used
 by the college includes a static rubric system, although these must be set up
 in advance of student submissions, and don't seem very flexible to me.
-
-Rgen is reliable. Each time a modification to either a rubric or a student's
-grade is made Rgen will save the update to a .csv file on the disk.  It always
-makes a backup of any existing file prior to performing a write and will
-generate an exception if anything goes wrong with the write leaving the backup
-file in place. My personal file system is backed up regularly, backups are
-essential when working with sensitive data.
 
 I wrote the initial version of Rgen in a few weeks at the start of the summer
 semester and have been using it to evaluate student homework and test
@@ -260,9 +259,21 @@ special data directory. The .csv file downloaded from FastSuite must be copied
 to a particular location and given a specific name, and the list of course
 assignments, and their associated weights is assumed to be present. These
 details require documentation and automation. There are a few ways that the
-code can generate exceptions, although Rgen can be simply restarted in cases
-like this without much trouble. Work is ongoing. If you have any questions you
-can reach me via gmail at:
+code can generate exceptions, although Rgen can be restarted in cases like this
+without any data loss. 
+
+Rgen is generally reliable, although there are no guarantees. Each time a
+modification to either a rubric or a student's grade is made Rgen will save the
+update to a .csv file on the disk. Very little state information is kept in
+memory without saving it to disk. Performance concerns were ignored for the
+sake of reliability. Rgen always makes a backup of any existing file prior to
+performing a write and will generate an exception if anything goes wrong with
+the write leaving the backup file in place. Rgen may destroy all of your
+student grades and notes for a course. My personal file system is backed up
+regularly, backups are essential when working with sensitive data, I recommend
+the same for anyone using a computer.
+
+Work is ongoing. If you have any questions you can reach me via gmail at:
 
 dave.wm.gilbert@gmail.com
 
