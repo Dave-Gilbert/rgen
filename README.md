@@ -81,17 +81,19 @@ figure out a good way to merge several multi-page spreadsheets automatically.
 
 Rgen's purpose to automatically generate a custom grade sheet for each student, and merge those sheets into a single end of year report. 
 
-The following table shows grades collected for the first term test. Each row in the table summarizes the grades for a single student. This birds eye perspective with per question averages gives a detailed snapshot into the first term test for the course.
+The following table shows grades collected for the first term test for an
+introductory course in computer programming. Each row in the table summarizes
+the grades for a single student. This birds eye perspective shows per question
+averages giving a detailed snapshot into the first term test for the course.
 
 ![Example Student Grade Sheet](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_10.png)
 
-The following grade sheet shows average scores and typical comments supplied
+The following grade sheet shows question scores and typical comments supplied
 for an example student for the same test. In this test, questions 2 through 7
 were automatically graded by the Mohawk College LMS MyCanvas, and these scores
-were copied in to RGEN. Unfortunately MyCanvas has no way to export partial
+were manually entered in to RGEN. Unfortunately MyCanvas has no way to export partial
 test answers, so some manual data entry is necessary. The real work is saved in
-generating comments for the long answer questions which can be quite
-complicated. 
+generating comments for the long answer questions, and the grade tabulation.
 
 ![Example Student Grade Sheet](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_1.png)
 
@@ -118,7 +120,7 @@ with students about their progress in the course.
 
 When grading a question, the instructor may choose to grade a single question
 or a small group of questions in sequence for each student. The following menu
-is used to grade a question and provide notes for the student. The menu at the
+is used to provide notes for the student for a single question. The menu at the
 top shows a list of comments and their associated scores which the instructor
 may select from. Rgen computes the total score for the question as comments
 are added. In this example the student has made 3 common mistakes, and scores
@@ -157,7 +159,7 @@ help with clarity, again by keeping related remarks grouped.
 
 ## RGEN Searching for Students with particular Comments
 
-An interesting feature provided by rgen is the ability to search for students
+An interesting feature provided by Rgen is the ability to search for students
 who have received a particular comment. This gives the grader a simple way to
 check consistency, or gain an understanding of who is struggling in the course
 with a particular concept. The "Find" option can be run from either the grading
@@ -178,15 +180,26 @@ will show the full remark under Q99.
 
 ## RGEN Other Features
 
-Rgen includes a collection of course management features. It computes a grade in
-progress for each student as well as adding up the number of hours the student
-has attended Zoom lectures for. Zoom has a feature where it can require that
-students log in only with an e-mail address from a specific domain. When that
-address is restricted to the mohawkcollege.ca domain, Zoom's report can be
-downloaded and student's attendance records can be matched via their e-mail
-addresses. While Mohawk College does not provide credit for attendance, when
-discussing a student's progress it is helpful to know whether they have been making
-an effort to participate in online Zoom lectures, or not.
+Rgen includes a collection of course management features. 
+
+For quizzes, or assignments that are completely evaluated in myCanvas it is
+possible to import grades for that assessment. MyCanvas will export the entire
+grade sheet for a course. Rgen can construct an "imported" rubric that simply
+shows final score. Unfortunately myCanvas will not export individual question
+scores.
+
+![Data Import](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_8.png)
+
+
+Rgen computes a grade in progress for each student as well as adding up the
+number of hours the student has attended Zoom lectures for. Zoom has a feature
+where it can require that students log in only with an e-mail address from a
+specific domain. When that address is restricted to the mohawkcollege.ca
+domain, Zoom's report can be downloaded and student's attendance records can be
+matched via their e-mail addresses. While Mohawk College does not provide
+credit for attendance, when discussing a student's progress it is helpful to
+know whether they have been making an effort to participate in online Zoom
+lectures, or not.
 
 ![Top Level Info](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_7.png)
 
@@ -196,16 +209,10 @@ various suggested meanings including '!', '\*', '%', and '?'. Keeping track of
 who has made unusual requests, has missed an evaluation, or has made a
 complaint about a grade can be helpful as the course progresses.
 
-For quizzes, or assessments that are completely evaluated in myCanvas it is
-possible to import sets of grades. MyCanvas will export the entire grade sheet
-for a course. Rgen can construct an "imported" rubric that simply shows final
-score. Unfortunately myCanvas will not export individual question scores.
-
-![Data Import](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_8.png)
-
-Rgen will compute partial grades based on the work that has been done so far.
-This same view will also show the details for any special notes that are
-relevant to this student.
+From the top level student information view the individual student's detailed
+records can be viewed. This same view will also show the details for any
+special notes that are relevant to this student. This view can also be used to
+drill down into the individual assignments and review or edit their details.
 
 ![Top Level Info](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_9.png)
 
@@ -213,48 +220,49 @@ relevant to this student.
 
 Prior to using this rubric generating tool I used a variety of different
 grading strategies. 20 years ago when I was in graduate school the norm was to
-sit down with a printed copy of a student's assignment and write on it with a
+sit down with stack of printed student assignments and write on each with a
 pen. I found this style of grading extremely difficult. I've only worked at the
-college for a few years. During my first year at the college I relearned how to
-use a spreadsheet, following the lead of senior staff who would often
-communicate grading template in this format. MyCanvas, the learning management
-system used by the college includes a static Rubric system, although these must
-be set up in advance of student submissions, and don't seem very flexible to
-me.
+college for a few years. During my first year at the I relearned how to use a
+spreadsheet, following the lead of senior staff who would often communicate
+grading template in this format. MyCanvas, the learning management system used
+by the college includes a static rubric system, although these must be set up
+in advance of student submissions, and don't seem very flexible to me.
 
-Rgen is fairly reliable. Each time a modification to either a rubric or a
-student's grade is made Rgen will save the update to a .csv file on the disk.
-It always makes a backup of any existing file prior to performing a write and
-will generate an exception if anything goes wrong with the write leaving the
-backup file in place. My personal file system is backed up regularly, backups
-are essential when working with sensitive data.
+Rgen is reliable. Each time a modification to either a rubric or a student's
+grade is made Rgen will save the update to a .csv file on the disk.  It always
+makes a backup of any existing file prior to performing a write and will
+generate an exception if anything goes wrong with the write leaving the backup
+file in place. My personal file system is backed up regularly, backups are
+essential when working with sensitive data.
 
 I wrote the initial version of Rgen in a few weeks at the start of the summer
 semester and have been using it to evaluate student homework and test
 submissions since then. With each homework assignment that I grade I find a few
-bugs or limitations. Generally I find that I grade and return things much
-faster than I did in the past, and that the supplied comments are far more
-detailed than I would normally be able to provide. Students have not complained
-to me about their grades this term as much as in other courses. I'd like to
-think that the consistency of the remarks and the detailed explanations
-contribute to better and clearer learning outcomes, and generally happier
-students.
+bugs or limitations in Rgen that I fix. Generally I find that I grade and
+return things much faster than I did in the past, and that the supplied
+comments are far more detailed than I would normally be able to provide.
+Students have not complained to me about their grades this term as much as in
+the past. I'd like to think that the consistency of the remarks and the
+detailed explanations contribute to better and clearer learning outcomes, and
+generally happier students.
 
 I occasionally suffer from wrist strain. It is an occupational hazard in
 computing. I've spent time to optimize the menus in rgen to minimize key
 strokes. While its still necessary to type in comments the first time, I find
 its much easier to navigate simple menus with cursor keys than it is to scroll
-through spreadsheet cells, and switch back and forth between a mouse and keyboard.
+through spreadsheet cells, and switch back and forth between a mouse and keyboard, 
+or constantly retype remarks into spreadsheet cells.
 
 ## Bugs and Rough Edges
 
 Some obvious features are missing. Initial setup requires the creation of a
 special data directory. The .csv file downloaded from FastSuite must be copied
-to a particular location, and the list of course assignments, and their
-associated weights is assumed to be present. These details require
-documentation and automation. There are a few ways that the code can generate
-exceptions. Work is ongoing. If you have any questions you can reach me via
-gmail at:
+to a particular location and given a specific name, and the list of course
+assignments, and their associated weights is assumed to be present. These
+details require documentation and automation. There are a few ways that the
+code can generate exceptions, although Rgen can be simply restarted in cases
+like this without much trouble. Work is ongoing. If you have any questions you
+can reach me via gmail at:
 
 dave.wm.gilbert@gmail.com
 
