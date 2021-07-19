@@ -87,10 +87,10 @@ questions which can be quite complicated.
 
 ![Example Student Grade Sheet](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_1.png)
 
-Scores can be supplied in 3 formats, 2 are shown in the preceding example. A
-fixed value score can be entered, this strategy is used in Q1 through Q7. Q8,
-Q9 and Q10 deduct a fixed number of points from a total, assigning various
-weights, and reasoning to each question.
+Scores can be calculated in several ways, 2 are shown in the preceding example.
+A fixed value score can be entered, this strategy is used in Q1 through Q7. Q8,
+Q9 and Q10 deduct points from a total, assigning various weights, and reasoning
+to each comment.
 
 While myCanvas will not export grades on a per question basis it will export
 full grade sheets. In the case of multiple choice quizzes which are
