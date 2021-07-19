@@ -31,7 +31,7 @@ progress, and computes final grades.
   * Additional notes are incorporated that are hidden from student views.
   * Hidden notes can be kept for both assignments, and student records.
 
-5. Rgen is written in Python, is simple, portable and extendable.
+5. Rgen is written in Python, is simple, portable and extendable
   * Tool supports data import and export via plain text .csv files.
   * Import functions are simple and easily adaptable to other systems.
   * Interface is text based and menu driven, based on the curses library.
@@ -152,8 +152,9 @@ When grading a question, the instructor may choose to grade a single question
 or a small group of questions in sequence for each student. The comma separated
 list option will allow the selection of a small ordered subset of questions to
 be graded for each student in sequence. Alternatively a single question at a
-time can be selected. For this example, Question #8, worth 10 points will be
-presented.
+time can be selected. Question #8 is worth 10 points. It required students to
+write a short Pythone if ... elif ... else structure that converted a 3 letter
+month to a yearly quarter, i.e. "Q1", "Q2", "Q3", or "Q4".
 
 ![Selecting a Question to Grade](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_11.png)
 
@@ -170,19 +171,26 @@ fixed point values assigned to them, i.e.  "0   no answer" and "10    Good". Som
 comments have no point value associated with them, others show -1, -2, or -4 and 
 are meant to be selected in combination. 
 
+By selecting the "Next" menu option at the bottom of the comment list Rgen will
+load the next student information for the same question.
+
 ## Rgen Modifying a Rubric
 
 The Rubric editor is accessible from the question grading menu.
 
 ![Example Editing Rubric](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_3.png)
 
-New comments can be added to the rubric, or existing comments can be modified at any point.
+New comments can be added to the rubric, or existing comments can be modified
+at any time. The idea is that it should be easy to switch back and forth
+between adding comments to student evaluations, and creating new comments for
+the rubric. Each student may take a different and sometimes unexpected
+approach, although its often the case that patterns in student understanding
+are revealed during grading.
 
 If an existing comment's score is modified and several students have received
-the comment, the system will recalculate all grades. This can lead to some
-surprising results. Rgen includes a check for question scores that go over the
-maximum or under the minimum and will generate a warning until all scores fit
-within the prescribed ranges.
+the comment, the system will recalculate all grades. Rgen includes a check for
+question scores that go over the maximum or under the minimum and will generate
+a warning until all scores fit within the prescribed ranges.
 
 ![Example Editing Rubric](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_4.png)
 
@@ -195,6 +203,9 @@ type and severity. This makes finding a comment in a list easier. The same
 order is generated in the student's version which can help with clarity, again
 by keeping related remarks grouped.
 
+Comments can be removed from the Rubric only if they have not been applied to
+any student's work. 
+
 ## Rgen Searching for Students with particular Comments
 
 An interesting feature provided by Rgen is the ability to search for students
@@ -205,14 +216,15 @@ menu or the rubric editor menu.
 
 ![Example Editing Rubric](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_5.png)
 
-In the following search result, 4 students did not answer question #8. This
-same group also did quite poorly on the test as this summary screen shows. The
-first student "Be" asked to be excused from the test.  Question #99 is only
-shown in the instructor's view and includes the '%' symbol hinting that this
-student's grade will need special calculation at some point.  The others
-struggled with the rest of the test, suggesting that question 8 was understood
-by the majority of the group. Reviewing the detailed scores for student "Be"
-will show the full remark under Q99.
+In the following search result, 4 students did not answer question #8. Full
+names have been obfuscated with a grey box, leaving first two letters for
+reference. This same group also did quite poorly on the test as this summary
+screen shows. The first student "Be" asked to be excused from the test.
+Question #99 is only shown in the instructor's view and includes the '%' symbol
+hinting that this student's grade will need special calculation at some point.
+Reviewing the detailed scores for student "Be" will show the full comment under
+Q99, the symbol is a reminder of this student's special circumstances on this
+test.
 
 ![Example Search](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_6.png)
 
@@ -222,9 +234,9 @@ Rgen includes a collection of course management features.
 
 For quizzes, or assignments that are completely evaluated in MyCanvas it is
 possible to import grades for that assessment. MyCanvas will export the entire
-grade sheet for a course. Rgen can construct an "imported" rubric that simply
-shows final score. Unfortunately MyCanvas will not export individual question
-scores.
+grade spreadsheet for a course in csv format. Rgen can construct an "imported"
+rubric that simply shows final score. Unfortunately MyCanvas will not export
+individual question scores.
 
 ![Data Import](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_8.png)
 
@@ -272,9 +284,9 @@ bugs or limitations in Rgen that I fix. Generally I find that I grade and
 return things much faster than I did in the past, and that the supplied
 comments are far more detailed than I would normally be able to provide.
 Students have not complained to me about their grades this term as much as in
-the past. I'd like to think that the consistency of the remarks and the
-detailed explanations contribute to better and clearer learning outcomes, and
-generally happier students.
+the past. I believe that the consistency of the remarks and the detailed
+explanations contribute to better and clearer learning outcomes, and generally
+happier students.
 
 I occasionally suffer from wrist strain. It is an occupational hazard in
 computing. I've spent time to optimize the menus in Rgen to minimize key
@@ -298,8 +310,10 @@ modification to either a rubric or a student's grade is made Rgen will save the
 update to a .csv file on the disk. Very little state information is kept in
 memory without saving it to disk. Performance concerns were ignored for the
 sake of reliability. Rgen always makes a backup of any existing file prior to
-performing a write and will generate an exception if anything goes wrong with
-the write leaving the backup file in place. Rgen may destroy all of your
+performing a write, and then removes the backup once the write has completed.
+Any exception generated during the write should leaving the backup file in
+place. If a backup file is found prior to a write the system will flag the
+inconsistency and request user intervention. Rgen may destroy all of your
 student grades and notes for a course. My personal file system is backed up
 regularly, backups are essential when working with sensitive data, I recommend
 the same for anyone using a computer.
