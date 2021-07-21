@@ -318,6 +318,17 @@ details require documentation and automation. There are a few ways that the
 code can generate exceptions, although Rgen can be restarted in cases like this
 without any data loss. 
 
+Rgen uses the curses library for character based screen management and has been
+tested within a Linux bash environment. The curses library will normally be
+pre-installed on any Unix installation but must be installed separately in
+Windows. See:
+
+![https://pypi.org/project/windows-curses/](https://pypi.org/project/windows-curses/)
+
+At this time Rgen requires some work to read Windows paths properly. If there
+is interest I'd be happy to look into it. Send me an e-mail if you'd like to
+see Rgen tested and working on Windows and I'll find the time.
+
 Rgen is generally reliable, although there are no guarantees. Each time a
 modification to either a rubric or a student's grade is made Rgen will save the
 update to a .csv file on the disk. Very little state information is kept in
