@@ -323,7 +323,7 @@ tested within a Linux bash environment. The curses library will normally be
 pre-installed on any Unix installation but must be installed separately in
 Windows. See:
 
-![https://pypi.org/project/windows-curses/](https://pypi.org/project/windows-curses/)
+[https://pypi.org/project/windows-curses/](https://pypi.org/project/windows-curses/)
 
 At this time Rgen requires some work to read Windows paths properly. If there
 is interest I'd be happy to look into it. Send me an e-mail if you'd like to
