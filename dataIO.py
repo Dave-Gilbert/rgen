@@ -58,15 +58,18 @@ def importCSV(path: str):
     """
     
     retval = []
-    try:
-        with open(path, newline='') as csvfile:
-            filereader = csv.reader(csvfile, delimiter=',', quotechar='"')
-            firstRow = True
+#    try:
+    with open(path, newline='') as csvfile:
+        filereader = csv.reader(csvfile, delimiter=',', quotechar='"')
+        
+        try:
             for row in filereader:
                 if len(row) > 0:
                     retval += [row]
-    except:
-        retval = None
+        except:
+            # some problem with the data
+            debug(None, "Incomplete read for " + path)
+            pass
 
     return retval
 

@@ -30,7 +30,7 @@ def getQuestionToGrade(stdscr, rubric: list, qi, ass):
 
     qsel += [['       Comma separated list','','']]
 
-    qi = arrayRowSelect(stdscr, qsel, 5, 0, 0, 8, 50, qi, False)
+    qi = arrayRowSelect(stdscr, qsel, 5, 0, 0, 8, 0, qi, False)
 
     if qi < len(qsel) - 1:
         qlist = [qsel[qi][0]]
