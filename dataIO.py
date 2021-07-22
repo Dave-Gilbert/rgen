@@ -58,7 +58,9 @@ def importCSV(path: str):
     """
     
     retval = []
-#    try:
+    if not os.path.isfile(path):
+        return None
+
     with open(path, newline='') as csvfile:
         filereader = csv.reader(csvfile, delimiter=',', quotechar='"')
         

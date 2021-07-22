@@ -1,0 +1,9 @@
+Student ID,Student,Preferred Name,Confidential,Stat,Level,Degree,Major,Email,SMS,Early Alert
+000123456,"Student, Example1",,,RW,00,Undeclared,Undeclared,example1.student@mohawkcollege.ca,,N
+000123457,"Student, Example2",,,RW,00,Undeclared,Undeclared,example2.student@mohawkcollege.ca,,N
+000123458,"Student, Example3",,,RW,00,Undeclared,Undeclared,example3.student@mohawkcollege.ca,,N
+000123460,"Student, Example5",,,RW,00,Undeclared,Undeclared,example5.student@mohawkcollege.ca,,N
+000123460,"Student, Example5",,,RW,00,Undeclared,Undeclared,example5.student@mohawkcollege.ca,,N
+000000000,"Course Setup requires some manual file configs",,,RW,00,Undeclared,Undeclared,info.student@mohawkcollege.ca,,N
+000000000,"see: course_data/fs_student_list.csv",,,RW,00,Undeclared,Undeclared,info.student@mohawkcollege.ca,,N
+000000000,"see: course_data/cousre_assignments.csv",,,RW,00,Undeclared,Undeclared,info.student@mohawkcollege.ca,,N

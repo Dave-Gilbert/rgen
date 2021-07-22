@@ -314,9 +314,15 @@ Some obvious features are missing. Initial setup requires the creation of a
 special data directory. The .csv file downloaded from FastSuite must be copied
 to a particular location and given a specific name, and the list of course
 assignments, and their associated weights is assumed to be present. These
-details require documentation and automation. There are a few ways that the
-code can generate exceptions, although Rgen can be restarted in cases like this
-without any data loss. 
+details require documentation and automation. The current version includes
+some sample files. See:
+
+course\_data/fs\_student\_list.csv    # CSV student data file downloaded from Fast Suite
+course\_data/course\_assignments.csv  # Static course description, modify with text editor
+course\_data/Zoom\_Attendance/empty\_data.csv  # zoom data files may use any name
+
+There are a few ways that the code can generate exceptions, although Rgen can
+be restarted in cases like this without any data loss. 
 
 Rgen uses the curses library for character based screen management and has been
 developed within a Linux bash environment. The curses library will normally be
