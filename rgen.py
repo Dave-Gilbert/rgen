@@ -130,9 +130,9 @@ def gradeQ(stdscr, HwkCommCodesList: list, q: str, rubric, acs: int, ass: str, s
         return HwkCommCodesList, "NextQ", 0, filterq
     
     if filterq == None:
-        menu = [" Grading " + ass + " " + q, "Prev Stud", "Next Q)", "Find", "Edit Rubric", "Done"]
+        menu = [" Grading " + ass + " " + q, "Edit Rubric", "Prev Stud", "Next Q)", "Find", "Done"]
     else:
-        menu = [" Grading " + ass + " " + filterq, "Prev Stud", "Next Q)", "Find", "Edit Rubric", "Done"]
+        menu = [" Grading " + ass + " " + filterq, "Edit Rubric", "Prev Stud", "Next Q)", "Find", "Done"]
 
 
     m = 0
@@ -163,21 +163,21 @@ def gradeQ(stdscr, HwkCommCodesList: list, q: str, rubric, acs: int, ass: str, s
             if m == 0:
                 pass
             elif m == 1:
-                cont = "PrevS"
+                editAssRubric(stdscr, ass, 2, q[1:].split(')')[0])
                 break
             elif m == 2:
-                cont = "NextQ"
+                cont = "PrevS"
                 break
             elif m == 3:
+                cont = "NextQ"
+                break
+            elif m == 4:
                 stdscr.addstr(3, 0, "Find All Students that have specific comment")
                 acs = arrayRowSelect(stdscr, qRubric, 4, 0, YPOS_STDGR - 2, 8, 0, 1, False)
                 filterq = qRubric[acs][0]
                 if '.' not in filterq and ')' not in filterq:
                     filterq = None 
                 cont = "NewFilter"
-                break
-            elif m == 4:
-                editAssRubric(stdscr, ass, 2, q[1:].split(')')[0])
                 break
             elif m == 5:
                 cont = "Done"
