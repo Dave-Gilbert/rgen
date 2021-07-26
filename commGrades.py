@@ -234,6 +234,7 @@ def getDispComments(AllHwkCommCodes: list, qRubric: list, q: str, stdview: bool)
     """
     dispComment = []
     commentCodesQ = ['']
+    reorderedCommentCodesQ = ['']
 
     for row in AllHwkCommCodes:
         if q == row[0]:
@@ -260,6 +261,7 @@ def getDispComments(AllHwkCommCodes: list, qRubric: list, q: str, stdview: bool)
 
             if commentCodesQ != ['']:
                 # display items in the same order that they appear in rubric
+                reorderedCommentCodesQ = []
                 for ritem in qRubric:                    
                     for cCode in commentCodesQ:
                         #if '{' in cCode:
@@ -277,6 +279,7 @@ def getDispComments(AllHwkCommCodes: list, qRubric: list, q: str, stdview: bool)
                                 pass # don't show import details in student view
                             else:
                                 dispComment += [["", pts, ritem[2]]]
+                                reorderedCommentCodesQ += [cCode]
 
                         elif "  " + cCode == ritem[0]:
                             pts = ""
@@ -284,8 +287,9 @@ def getDispComments(AllHwkCommCodes: list, qRubric: list, q: str, stdview: bool)
                                 pts = "("+ritem[1]+" pts )"
 
                             dispComment += [["", pts, ritem[2]]]
+                            reorderedCommentCodesQ += [cCode]
 
-    return dispComment, commentCodesQ
+    return dispComment, reorderedCommentCodesQ
 
 
 def showHwkComments(stdscr, allHwkCommCodes: list, qRubric: list, q: str, py: int, sel: int, nowait: bool, stdview: bool):
@@ -305,13 +309,13 @@ def showHwkComments(stdscr, allHwkCommCodes: list, qRubric: list, q: str, py: in
 
     if commentCodesQ == ['']:
         sel = arrayRowSelect(stdscr, dispComment, py, 0, 0, 8, 0, sel, True)
-        return -1
+        return -1, ''
 
     sel = arrayRowSelect(stdscr, dispComment, py, 0, 0, 8, 0, sel, nowait)
     if nowait:
-        return len(dispComment)
+        return len(dispComment), ''
 
-    return sel
+    return sel, commentCodesQ[sel - 1]
 
 def grCalc(q: str, comCodes: str, qRubric: list):
     """

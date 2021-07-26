@@ -151,7 +151,7 @@ def gradeQ(stdscr, HwkCommCodesList: list, q: str, rubric, acs: int, ass: str, s
         stdscr.addstr(YPOS_STDGR - 1, 0, studident[0] + " " + studident[1])
         error = ""
 
-        sel = showHwkComments(stdscr, HwkCommCodesList, qRubric, q, YPOS_STDGR, 0, True, False)
+        sel, ignore = showHwkComments(stdscr, HwkCommCodesList, qRubric, q, YPOS_STDGR, 0, True, False)
         if sel == -1:
             acs = 1
         else:
@@ -187,12 +187,13 @@ def gradeQ(stdscr, HwkCommCodesList: list, q: str, rubric, acs: int, ass: str, s
             cont = "NextS"
             break
         elif acs == len(qRubric) - 2:
-            # adjust for qRubric selection, ignore -1 and 0, 
-            sel = showHwkComments(stdscr, HwkCommCodesList, qRubric, q, YPOS_STDGR, 1, False, False) -1
+            sel, delCode = showHwkComments(stdscr, HwkCommCodesList, qRubric, q, YPOS_STDGR, 1, False, False) 
             cList = HwkCommCodesList[qi][2].split(',')
-            # debug(stdscr, (cList, sel))
-            if sel < len(cList) and sel >= 0:             
-                del cList[sel]
+            # N.B. selected row will not reliably point to delCode in cList
+            # this is due to some inconsistencies between ordering of codes
+            # debug(stdscr, (cList, sel, delCode))
+            if sel <= len(cList) and sel > 0:             
+                cList.remove(delCode)
                 newCom = ",".join(cList)
                 newCom = [HwkCommCodesList[qi][0], HwkCommCodesList[qi][1], newCom]
                 HwkCommCodesList[qi] = newCom
@@ -219,7 +220,11 @@ def enterGrades(stdscr, ass, s):
        stdscr.clear()
        klist, kdict = genStudKeysScores(rubric, ass, filterq)
        assert len(klist)> 0, "keyword list = " + str(klist)
-       if s == 0 or s >= len(klist):  
+       if len(klist) == 1 and filerq != None:
+           # 1st line of klist should not be a student
+           menuInputH(stdscr, ["no results for filter =" + filterq], 3, 0, 10, 0, 0, False)
+           return
+       if s == 0 or s >= len(klist):           
            s = 1 
            stdscr.addstr(2, 0, "Select Student to Grade for " + ass)
            s = arrayRowSelect(stdscr, klist, 3, 0, 0, 0, 50, s, False)
@@ -288,13 +293,13 @@ def showGradeDetails(stdscr, hwkComments, klistQs, klistItem, stdListItem, ass, 
     ypos = 10
     for q in klistQs[1:-2]:
         qRubric = getQRubric(rubric, q)
-        rowt = showHwkComments(stdscr, hwkComments, qRubric, q, ypos, 0, True, True)
+        rowt, ignore = showHwkComments(stdscr, hwkComments, qRubric, q, ypos, 0, True, True)
         ypos += rowt + 1
 
     ypos += 1
     q = "Q99)"
     qRubric = getQRubric(rubric, q)
-    rowt = showHwkComments(stdscr, hwkComments, qRubric, q, ypos, 0, True, True)
+    rowt, ignore = showHwkComments(stdscr, hwkComments, qRubric, q, ypos, 0, True, True)
     mg = menuInputH(stdscr, menu, 1, 0, 10, 0, mg, False)
     
     return menu[mg], mg
