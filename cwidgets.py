@@ -184,7 +184,7 @@ def menuInputH(stdscr, menu :list, py: int, px: int, minw: int, maxw: int, sel: 
     @param sel:   the initial selection, 0 == first item
     @param nowait: if True, just draw the menu and exit
 
-    @return integer representing selection, 0 .. len(list) - 1
+    @return: integer representing selection, 0 .. len(list) - 1
     """
 
     assert(maxw > minw or maxw == 0)
@@ -261,7 +261,7 @@ def displayInp(stdscr, orig :str, py: int, px: int, x: int, ins: bool):
     @param px x position of input widget
     @param x x position of cursor
 
-    @return modified string
+    @return: modified string
     """
 
     maxy, maxx = stdscr.getmaxyx()
@@ -298,7 +298,7 @@ def input(stdscr, prompt: str, orig :str, py: int, px: int) -> str:
     @param py y position of input widget
     @param px x position of input widget
 
-    @return modified string
+    @return: modified string
     """
     maxy, maxx = stdscr.getmaxyx()
     stdscr.addstr(py,px," " * (maxx - px))

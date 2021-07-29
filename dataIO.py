@@ -5,9 +5,9 @@ from cwidgets import *
 
 def getStudList():
     """
-    @param None
+    Generate a list of basic student information pulled from the FastSuite file.
 
-    @return studList = [studkey, ID, name, e-mail addr], studDict (same, indexed by studkey)
+    @return: studList = [studkey, ID, name, e-mail addr], studDict (same, indexed by studkey)
     """
 
     # verify that a class list file is present in the current directory
@@ -31,9 +31,11 @@ def getStudList():
 
 def importFastSuiteCSV(path: str):
     """
-    @param path - refers to .csv file downloaded from Fast Suite
+    Import the fast suite data file, ignore the first row
 
-    @return an array version of three essential columns, id, name, e-mail addr
+    @param path: refers to .csv file downloaded from Fast Suite
+
+    @return: an array version of three essential columns, id, name, e-mail addr
     """
     
     retval = []
@@ -52,9 +54,11 @@ def importFastSuiteCSV(path: str):
 
 def importCSV(path: str):
     """
-    @param path - refers to generic .csv file, ignore blank lines
+    Import a generic CSV file. Ignore empty rows, warn if the input fails for some reason.
 
-    @return an array version of csv
+    @param path: refers to generic .csv file, ignore blank lines
+
+    @return: an array version of csv
     """
     
     retval = []
@@ -78,6 +82,12 @@ def importCSV(path: str):
 total_exports = 0
 
 def exportCSV(path: str, outdata: list):
+    """
+    Carefully export data, backup files before export, count total export operations.
+
+    @para path: full path and file name
+    @param outdata: list of lists to export
+    """
 
     global total_exports
 
@@ -101,6 +111,12 @@ def exportCSV(path: str, outdata: list):
         os.remove(path + ".bak")
 
 def buildAssDir(cAss: list):
+    """
+    Build the assignment directory structure, populate with default rubric files.
+
+    @param cAss: course assignment list
+
+    """
         
     pathA=os.getcwd()+'/course_data/assignments/'
     try:
@@ -132,10 +148,12 @@ def buildAssDir(cAss: list):
 
 def importZoomAttendData(stdList, stdDict):
     """
-    @param stdList - list of all student data from fast suite
-    @param stdDict - dictionary of student keys vs. basic infor
+    Import Zoom attendance files. 
 
-    @return - studKeyVsZTimeDict - a dictionary returning zoom view hours vs student keys
+    @param stdList: list of all student data from fast suite
+    @param stdDict: dictionary of student keys vs. basic infor
+
+    @return: studKeyVsZTimeDict - a dictionary returning zoom view hours vs student keys
     """
 
     emailDict = {}
@@ -163,8 +181,18 @@ def importZoomAttendData(stdList, stdDict):
     return studKeyVsZTimeDict
 
 
-
 def importMyCanvasData(stdscr, ass: str):
+    """
+    Select data to import an assignment from. Data files are assumed to be from myCanvas
+
+    @param stdscr: curses window
+    @param ass: student assignment
+
+    @note
+    This function builds a template rubric which stores the name of the source
+    file that the grade came from. Source data is hidden in the student view.
+    """
+
     stdscr.clear()
 
     pathGrades=os.getcwd()+'/course_data/assignments/'+ass
