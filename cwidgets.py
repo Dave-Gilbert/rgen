@@ -1,7 +1,12 @@
 #!/usr/bin/python3
-#
-# curses for screen rendering
-# https://docs.python.org/3/howto/curses.html
+
+"""
+
+@note
+
+rgen uses curses for screen rendering. 
+https://docs.python.org/3/howto/curses.html
+"""
 
 import curses
 import curses.ascii
@@ -10,6 +15,15 @@ from curses import wrapper
 stdscr_def = None
 
 def debug(stdscr, arg):
+    """
+    Print a debugging message at the top of the current window
+
+    @param stdscr: reference to curses output screen, can be None if already initialized
+    @param arg: a string based argument
+
+    To initialize call with a non-null value, should be the first thing 
+    the program does. Will wait until enter is pressed to proceed in subsequent calls.
+    """
     global stdscr_def
     if arg == None and stdscr != None:
         stdscr_def = stdscr
@@ -19,9 +33,14 @@ def debug(stdscr, arg):
     stdscr.addstr(0,10, "DBG> " + str(arg) + "              ")
     stdscr.getch()
 
-def fitItem(item: str, cWidth):
-    
-    # left justify if item appears to be a number
+def fitItem(item: str, cWidth: int):
+    """
+    Left justify if item appears to be a number
+
+    @param item: display item in string format
+    @param cWidth: width of the cell
+    """
+
     num=True
     for let in item:
         if let.isalpha():
@@ -37,17 +56,19 @@ def fitItem(item: str, cWidth):
 
 def arrayRowSelect(stdscr, array: list, py: int, px: int, maxpy: int, minw: int, maxw: int, sel: int, nowait: bool) -> int:
     """
-    @param stdscr ncurses root object
-    @param array 2d array of items to be selected from
-    @param py y position of input widget
-    @param px x position of input widget
-    @param maxpy maximum y position to use, aka bottom of table - 0 to ignore
-    @param minw minimum width of item, 0 to ignore
-    @param maxw maximum width of item, 0 to ignore
-    @param sel the initial selection, 0 == first row
-    @param nowait - just display, don't wait for input
+    Display a spreadsheet like table, allows selection of row with cursors.
 
-    @return integer representing selection, 0 .. len(list) - 1
+    @param stdscr: ncurses root object
+    @param array: 2d array of items to be selected from
+    @param py: y position of input widget
+    @param px: x position of input widget
+    @param maxpy: maximum y position to use, aka bottom of table - 0 to ignore
+    @param minw: minimum width of item, 0 to ignore
+    @param maxw: maximum width of item, 0 to ignore
+    @param sel: the initial selection, 0 == first row
+    @param nowait: - just display, don't wait for input
+
+    @return: integer representing selection, 0 .. len(list) - 1
     """
 
     assert maxpy > py or maxpy == 0
@@ -152,14 +173,16 @@ def arrayRowSelect(stdscr, array: list, py: int, px: int, maxpy: int, minw: int,
 
 def menuInputH(stdscr, menu :list, py: int, px: int, minw: int, maxw: int, sel: int, nowait: bool) -> int:
     """
-    @param stdscr ncurses root object
-    @param menu 1d array of items to be selected from
-    @param py y position of input widget
-    @param px x position of input widget
-    @param minw minimum width of item, 0 to ignore
-    @param maxw maximum width of item, 0 to ignore
-    @param sel   the initial selection, 0 == first item
-    @param nowait if True, just draw the menu and exit
+    Horizontal menu, with selection.
+
+    @param stdscr: ncurses root object
+    @param menu: 1d array of items to be selected from
+    @param py: y position of input widget
+    @param px: x position of input widget
+    @param minw: minimum width of item, 0 to ignore
+    @param maxw: maximum width of item, 0 to ignore
+    @param sel:   the initial selection, 0 == first item
+    @param nowait: if True, just draw the menu and exit
 
     @return integer representing selection, 0 .. len(list) - 1
     """
@@ -230,6 +253,8 @@ def menuInputH(stdscr, menu :list, py: int, px: int, minw: int, maxw: int, sel: 
  
 def displayInp(stdscr, orig :str, py: int, px: int, x: int, ins: bool):
     """
+    Display the field for text input.
+
     @param stdscr ncurses root object
     @param orig original string to be modified
     @param py y position of input widget
@@ -265,6 +290,8 @@ def displayInp(stdscr, orig :str, py: int, px: int, x: int, ins: bool):
 
 def input(stdscr, prompt: str, orig :str, py: int, px: int) -> str:
     """
+    Wait for user input, supports left, right, home, end, del and bs.
+
     @param stdscr ncurses root object
     @param prompt prompt followed by "> "
     @param orig original string to be modified
