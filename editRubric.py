@@ -1,11 +1,5 @@
 #!/usr/bin/python3
 #
-# curses for screen rendering
-# https://docs.python.org/3/howto/curses.html
-
-#
-# https://docs.python.org/3/library/pathlib.html?highlight=file%20exists#pathlib.Path.exists
-
 from cwidgets import *
 from dataIO import *
 from pathlib import Path
@@ -14,11 +8,13 @@ import os
 
 def editAssRubricQ(stdscr, pts: str, descr: str):
     """
-    @param stdscr - curses root object
-    @param pts - default point value, or "" for empty
-    @param descr - default description, or "" for empty
+    Edits a rubric question, does basic input validation
 
-    @return error, pts, descr
+    @param stdscr: curses root object
+    @param pts: default point value, or "" for empty
+    @param descr: default description, or "" for empty
+
+    @return: error, pts, descr
     """
 
     error = ""
@@ -38,12 +34,14 @@ def editAssRubricQ(stdscr, pts: str, descr: str):
 
 def editAssRubricComm(stdscr, pts: str, descr: str, q99: bool):
     """
-    @param stdscr - curses root object
-    @param pts - default point value, or "" for empty
-    @param descr - default description, or "" for empty
-    @param q99 - whether this is special question 99
+    Edits a rubric comment, does basic input validation.
 
-    @return error, pts, descr
+    @param stdscr: curses root object
+    @param pts: default point value, or "" for empty
+    @param descr: default description, or "" for empty
+    @param q99: whether this is special question 99
+
+    @return: error, pts(updated point value), descr(update description)
     """
 
     error = ""
@@ -75,12 +73,13 @@ def editAssRubricComm(stdscr, pts: str, descr: str, q99: bool):
 
 def editAssRubricAddComm(stdscr, rubric: list, q: str):
     """
-    @param stdscr - curses root object
-    @param rubric - complete grading scheme
-    @param q - default question, can be ""
-    @param row - the row where the comment was inserted
+    Add a new comment to the rubruc.
 
-    @return error, rubric, q
+    @param stdscr: curses root object
+    @param rubric: complete grading scheme
+    @param q: default question, can be ""
+
+    @return: error, rubric, q
     """
  
     error = ""
@@ -116,10 +115,12 @@ def editAssRubricAddComm(stdscr, rubric: list, q: str):
 
 def editAssRubricAddQ(stdscr, rubric):
     """
-    @param stdscr - curses root object
-    @param rubric - complete grading scheme
+    Adds a new question to the rubric
 
-    @return error, rubric, q
+    @param stdscr: curses root object
+    @param rubric: complete grading scheme
+
+    @return: error, rubric(list of questions and comments), q(string numeric value), row# 
     """
  
     error = ""
@@ -155,11 +156,13 @@ def editAssRubricAddQ(stdscr, rubric):
 
 def editAssRubricRemQ(stdscr, rubric, q):
     """
-    @param stdscr - curses root object
-    @param rubric - complete grading scheme
-    @param q - question in 'Q#)' format
+    Remove a question from the rubric, and all of its associated comments.
 
-    @return error, rubric
+    @param stdscr: curses root object
+    @param rubric: complete grading scheme
+    @param q: question in 'Q#)' format
+
+    @return: error, rubric
     """
  
     error = ""
@@ -185,9 +188,11 @@ def editAssRubricRemQ(stdscr, rubric, q):
 
 def editAssRubricMov(stdscr, rubric: list, s: int):
     """
-    @param stdscr - curses root object
-    @param rubric - complete grading scheme
-    @param s - rubric selection
+    Move a rubric comment to another row, either up or down in the grading scheme.
+
+    @param stdscr: curses root object
+    @param rubric: complete grading scheme
+    @param s: rubric selection
     """
  
     error = ""
