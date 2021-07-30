@@ -233,14 +233,20 @@ def importMyCanvasData(stdscr, ass: str):
     fileCanvas = os.getcwd()+'/course_data/myCanvas_Grade_Export/'+files2d[s][0]
 
     allData = importCSV(fileCanvas)
-    selectRow = []
+    # myCanvas export files use the following column format
+    # name, id, sisid, sislogin, section, notes, a1, a2, a3, ..., an, (readonly data1), ... (ro dn)
+    #
+    # we don't care about readonly data at the end. We want the list of assignment names a1..an
+    # points / assignment is stored in row #2,
+    myCanTable = []
     for col in range(6, len(allData[0])):
-        if not 'read only' in allData[2][col]:
-            selectRow += [[allData[0][col], '/ '+ allData[2][col]]]
+        if not 'read only' in allData[2][col]: # ignore data at the end of the table
+            myCanTable += [[allData[0][col], '/ '+ allData[2][col]]]
 
-    assCol = arrayRowSelect(stdscr, selectRow, 14, 0, 0, 8, 0, 0, False) + 6
+    assCanTable = arrayRowSelect(stdscr, myCanTable, 14, 0, 0, 8, 0, 0, False)
+    assAllData = assCanTable + 6  # selection menu will be offset by six
 
-    total =  ((selectRow[assCol][1].split('/')[1]).split('.')[0])
+    total = ((myCanTable[assCanTable][1].split('/')[1]).split('.')[0])
 
     newRubric = [['Total',total, ''],
                  ['','',''],
@@ -258,7 +264,7 @@ def importMyCanvasData(stdscr, ass: str):
         for row in allData:
             if row[2] == student[1]:
                 # found student ID match, build grade record
-                sdata=[['Q1)',total,'Q1.1{'+row[assCol] + '}'],
+                sdata=[['Q1)',total,'Q1.1{'+row[assAllData] + '}'],
                        ['Q99)',0,'']]
                 exportCSV(pathGrades + '/' + student[0] + '.csv', sdata)
 
