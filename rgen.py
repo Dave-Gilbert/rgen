@@ -1,7 +1,4 @@
 #!/usr/bin/python3
-#
-# curses for screen rendering
-# https://docs.python.org/3/howto/curses.html
 
 import curses
 from curses import wrapper
@@ -13,10 +10,17 @@ from dataIO import *
 from editRubric import *
 from commGrades import *
 
-# Coordinates are always passed in the order y,x, 
-# the top-left corner of a window is coordinate (0,0).
+def getQuestionToGrade(stdscr, rubric: list, qi: int, ass: str):
+    """
+    Show selection menu for question to grade
 
-def getQuestionToGrade(stdscr, rubric: list, qi, ass):
+    @param stdscr: curses root window object
+    @param rubric: full assignment rubric
+    @param qi: selected question row, as integer
+    @param ass: assignment name
+
+    @return: qlist - question list, qi - question row int, error
+    """
     
     stdscr.clear()
 
@@ -52,11 +56,13 @@ def getQuestionToGrade(stdscr, rubric: list, qi, ass):
 
 def insNewComment(stdscr, HwkCommCodes: str, q: str, qi: int, acs:int, qRubric: list):
     """
-    @param HwkCommCodes - string representation of a comma separated list of comment codes
-    @param q - string question id Q##)
-    @param qi - integer index into question
-    @param acs - comment selection from qRubric
-    @param qRubric - question rubric with some menu items appended
+    insert a new comment into the rubric
+
+    @param HwkCommCodes: string representation of a comma separated list of comment codes
+    @param q: string question id Q##)
+    @param qi: integer index into question
+    @param acs: comment selection from qRubric
+    @param qRubric: question rubric with some menu items appended
     """
 
     # only allow a single arbitrary number
@@ -109,7 +115,20 @@ def insNewComment(stdscr, HwkCommCodes: str, q: str, qi: int, acs:int, qRubric: 
     return HwkCommCodes
 
 
-def gradeQ(stdscr, HwkCommCodesList: list, q: str, rubric, acs: int, ass: str, studident: list, filterq):
+def gradeQ(stdscr, HwkCommCodesList: list, q: str, rubric, acs: int, ass: str, studident: list, filterq: str):
+    """
+    Grade an individual question
+
+    @param HwkCommCodesList: student assignment questions with comment codes
+    @param q: question to grade, prefixed by 'Q' suffixed by ')'
+    @param rubric: assignment rubric
+    @param acs: previous selection
+    @param ass: assignment
+    @param studident: student name and id
+    @param filterq: restricts search to students with a specific comment
+
+    return: HwkCommCodesList - revised comments, cont - whether to continue marking, acs - menu selection, filterq - updated filter
+    """
 
     assert (q[0] == 'Q' and q[-1] == ')') or (q[0:3] == '  Q' and '.' in q), "q arg not correctly formatted '" + q + "'"
 
@@ -205,7 +224,14 @@ def gradeQ(stdscr, HwkCommCodesList: list, q: str, rubric, acs: int, ass: str, s
     return HwkCommCodesList, cont, acs, filterq
 
 
-def enterGrades(stdscr, ass, s):
+def enterGrades(stdscr, ass: str, s):
+    """
+    Show a list of students to grade for a particular assignment, select student to grade
+
+    @param stdscr: root curses window object
+    @param ass: assignment name
+    @param s: previous student selection
+    """
 
     pathR=os.getcwd()+'/course_data/assignments/'+ass+'/0_rubric.csv'
     rubric = importCSV(pathR)
@@ -280,12 +306,26 @@ def enterGrades(stdscr, ass, s):
                   filter = None
                   break
                 
-def showGradeDetails(stdscr, hwkComments, klistQs, klistItem, stdListItem, ass, rubric, mg):
+def showGradeDetails(stdscr, hwkComments: list, klistQs: list, klistItem: list, stdInfo: list, ass: str, rubric: list, mg: int):
+    """
+    Show student / instructor view. Notes appear at the bottom of the screen
+
+    @param stdscr: curses root window object
+    @param hwkComments: a list of student questions and comments codes for each question
+    @param klistQs: a list of assignment question and grades derived from the student key, last item is total
+    @param stdInfo: student info, name and e-mail address
+    @param ass: assignment name
+    @param rubric: assignment rubric
+    @param mg: previous menu selection
+
+    @return: current menu selection, menu selection integer
+
+    """
 
     stdscr.clear()
-    stdscr.addstr(3, 0, stdListItem[2])
-    stdscr.addstr(5, 0, stdListItem[1] + " . . . Grade = "+ klistItem[-1])
-    stdscr.addstr(6, 0, "ID: " + stdListItem[0])
+    stdscr.addstr(3, 0, stdInfo[2])
+    stdscr.addstr(5, 0, stdInfo[1] + " . . . Grade = "+ klistItem[-1])
+    stdscr.addstr(6, 0, "ID: " + stdInfo[0])
     stdscr.addstr(8, 0, ass)
     
     menu = ["Next", "Prev", "Edit", "Done"]
@@ -306,9 +346,11 @@ def showGradeDetails(stdscr, hwkComments, klistQs, klistItem, stdListItem, ass, 
 
 def showGrades(stdscr, ass: str, s: int, filterq):
     """
-    @param ass - assignment
-    @param s - previous selection
-    @param filterq - filter list, (None for get all)
+    Display the grades for a single assignment
+
+    @param ass: assignment
+    @param s: previous selection
+    @param filterq: filter list, (None for get all)
     """
 
     pathR=os.getcwd()+'/course_data/assignments/'+ass+'/0_rubric.csv'
@@ -361,9 +403,11 @@ def showGrades(stdscr, ass: str, s: int, filterq):
 
 def editAssRubric(stdscr, ass: str, m: int, lq: str):
     """
-    @param ass - assignment id
-    @param lq - string version of numeric question, may be ""
-    @param m - last menu item used 
+    Edit the rubric for a given assignment
+
+    @param ass: assignment id
+    @param m: last menu item used 
+    @param lq: string version of numeric question, may be ""
     """
 
     pathR=os.getcwd()+'/course_data/assignments/'+ass+'/0_rubric.csv'
@@ -443,11 +487,59 @@ def editAssRubric(stdscr, ass: str, m: int, lq: str):
 
     exportCSV(pathR, rubric)
 
-def getAllStudGrades(stdList, stdDict, cAss):
+def noteWeight(note:str):
     """
-    @param stdList - list of all student data from fast suite
-    @param stdDict - dictionary of student keys vs. basic infor
-    @param cAss - array of all all assignments
+    @param note: string representing note types "%!*?"
+    
+    @return: numeric value representing the weight
+
+    Notes are weighted as follows, by severity / lookup importance:
+
+    % = 50 special grade calculation
+    ! = 10 per assignment note (often academic dishonesty related)
+    * = 3  per student note, asides / generic remarks
+    ? = 1  odd questions about students
+    """
+
+    stab = {'%':50, '!':10, '*':3, '?':1, ' ':0 }
+    score = 0
+    for ch in note:
+        score -= stab[ch]
+
+    return score
+
+def sortTable(table:list, sort):
+    """
+    Sort the data in a table by sort key, don't include the first row
+
+    @param table: list of student info
+    @param sort: sort order
+
+    """
+    sorted_table = table[1:]
+    
+    heading = [table[0]]
+
+    if sort in (1,2,3):
+        sorted_table.sort(key = lambda row: row[sort])
+    elif sort == 4:
+        sorted_table.sort(key = lambda row: float(row[-3]))
+    elif sort == 5:
+        sorted_table.sort(key = lambda row: float(row[-2].split('/')[0]))
+    elif sort == 6:
+        sorted_table.sort(key = lambda row: noteWeight(row[-1]))
+
+    sorted_table = heading + sorted_table
+
+    return sorted_table
+
+def getAllStudGrades(stdList, stdDict, cAss, sort):
+    """
+    Construct a table of all grade results and all scores. Calculate grade totals based on comments.
+
+    @param stdList: list of all student data from fast suite
+    @param stdDict: dictionary of student keys vs. basic infor
+    @param cAss: array of all all assignments
 
     @return allStudentGrades - master table of all scores vs. student details
     """
@@ -488,12 +580,12 @@ def getAllStudGrades(stdList, stdDict, cAss):
                     tweight += float(row[2])
                     tscore += float(row[2]) * scorenum / scoreden
 
-        last_row = allStudGrRow + [ float2str1d(studKeyVsZtimeDict[stud[0]])] + \
+        row_w_totals = allStudGrRow + [ float2str1d(studKeyVsZtimeDict[stud[0]])] + \
                 [float2str1d(tscore) + ' /'  + float2str1d(tweight)] + ['   ' + N99]
-        allStudGrades += [last_row]
+        allStudGrades += [row_w_totals]
      
 
-    return allStudGrades
+    return sortTable(allStudGrades, sort)
 
 def getSummaryFrAll(allStudGrades: list):
     """
@@ -503,14 +595,17 @@ def getSummaryFrAll(allStudGrades: list):
     """
 
     summStudGrades = []
-    
     for row in allStudGrades:
-        summStudGrades += [row[1:4] + [row[-3], row[-2], row[-1]] ]
-
+        summStudGrades += [row[1:4] + row[-3:] ]
 
     return summStudGrades
 
 def showAllStudGrades(allStudGrades: list, s):
+    """
+    @param allStudGrades: complete student grade information for all students / all assignments
+    @param s: selected student
+    """
+
 
     menu = ["Next", "Prev", "Done"]
 
@@ -578,6 +673,11 @@ def showAllStudGrades(allStudGrades: list, s):
 
 
 def mgrc(stdscr_in):
+    """
+    Root level menu presenting main options, student info & grade assignments
+
+    @param stdscr_in: curses initial root level window
+    """
     
     global stdscr
     stdscr = stdscr_in
@@ -597,31 +697,40 @@ def mgrc(stdscr_in):
 
     s = 0
     m = 0
-    menu = ["Student Info", "e-mail list", "Show Assignment Grades", "Enter Grades", "Edit Rubric", "Import myCanvas Grades"]
+    sort = 0
+    menu = ["Student Info", "e-mail list", "Show Assignment Grades", "Enter Grades", "Edit Rubric", "Import myCanvas Grades", "Sort order"]
+    menu2 = ["Sortby: default", "id", "name", "e-mail", "hours", "grade", "notes"]
     error = ""
     while True:    
         # redraw screen
-        allStudGrades = getAllStudGrades(stdList, stdDict, cAss)
+        allStudGrades = getAllStudGrades(stdList, stdDict, cAss, sort)
         summStudGrades = getSummaryFrAll(allStudGrades)
 
         stdscr.clear()
         if error != "":
             stdscr.addstr(3,0, error)
         error = ""
-        if m == 0:
+        if m == 0 or m == 6:
             s = arrayRowSelect(stdscr, summStudGrades, 5, 0, 0, 12, 0, s, True)
+            sort = menuInputH(stdscr, menu2, 3, 0, 10, 0, sort, True)
         else:
             stdscr.addstr(4, 0, "          points    %weight")
             s = arrayRowSelect(stdscr, cAss, 5, 0, 0, 8, 50, s, True)
         
         m = menuInputH(stdscr, menu, 2, 0, 10, 0, m, False)
         
-        if m == 0:
+        if m == 0 or m == 6:
             stdscr.clear()
-            m = menuInputH(stdscr, menu, 2, 0, 10, 0, m, True)
-            s = arrayRowSelect(stdscr, summStudGrades, 5, 0, 0, 12, 0, s, False)
-            if s > 0:
-                showAllStudGrades(allStudGrades, s)
+            menuInputH(stdscr, menu, 2, 0, 10, 0, m, True)
+            arrayRowSelect(stdscr, summStudGrades, 5, 0, 0, 12, 0, s, True)
+            if m == 6:
+                sort = menuInputH(stdscr, menu2, 3, 0, 10, 0, sort, False)
+            if m == 0:
+                sort = menuInputH(stdscr, menu2, 3, 0, 10, 0, sort, True)
+                s = arrayRowSelect(stdscr, summStudGrades, 5, 0, 0, 12, 0, s, False)
+                if s > 0:
+                    showAllStudGrades(allStudGrades, s)
+
         elif m == 1 and len(summStudGrades) >= 2:
             stdscr.clear()
             yp = 4
