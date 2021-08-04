@@ -32,7 +32,7 @@ def editAssRubricQ(stdscr, pts: str, descr: str):
 
     return error, pts, descr
 
-def editAssRubricComm(stdscr, pts: str, descr: str, q99: bool):
+def editAssRubricComm(stdscr, pts: str, descr: str, q99: bool, qask: bool):
     """
     Edits a rubric comment, does basic input validation.
 
@@ -40,18 +40,23 @@ def editAssRubricComm(stdscr, pts: str, descr: str, q99: bool):
     @param pts: default point value, or "" for empty
     @param descr: default description, or "" for empty
     @param q99: whether this is special question 99
+    @param qask: whether the question # was asked for or implied, determines placement of prompts
 
     @return: error, pts(updated point value), descr(update description)
     """
 
+    shift = 0
+    if not qask:
+        shift = -1
+
     error = ""
     if q99:
-        stdscr.addstr(4,0, "q99 always hidden, ':?' or ':%' notes")
+        stdscr.addstr(4 + shift,0, "q99 always hidden, ':?' or ':%' notes")
         okprefix='?%'
     else:
-        stdscr.addstr(4,0, "Description prefixes = ':H' Hide Comment, ':n' custom value")
+        stdscr.addstr(4 + shift,0, "Description prefixes = ':H' Hide Comment, ':n' custom value")
         okprefix='Hn'
-    descr = input(stdscr, "Item Description", descr, 5, 0)
+    descr = input(stdscr, "Item Description", descr, 5 + shift, 0)
     
     if descr != '' and descr[0] == ':' and descr[1] not in okprefix:
         error = "Unsupported description prefix"
@@ -59,7 +64,7 @@ def editAssRubricComm(stdscr, pts: str, descr: str, q99: bool):
         if descr[0:2] == ':n':
             pts = '#.#'
         else:
-            pts = input(stdscr, "item points [+-]#", pts, 6, 0).strip()
+            pts = input(stdscr, "item points [+-]#", pts, 6 + shift, 0).strip()
             if not (pts == "" or
                    (pts[0] in "+-" and pts[1:].isdecimal()) or 
                     pts.isdecimal()):
@@ -71,19 +76,24 @@ def editAssRubricComm(stdscr, pts: str, descr: str, q99: bool):
     return error, pts, descr
 
 
-def editAssRubricAddComm(stdscr, rubric: list, q: str):
+def editAssRubricAddComm(stdscr, rubric: list, q: str, qask: bool):
     """
     Add a new comment to the rubruc.
 
     @param stdscr: curses root object
     @param rubric: complete grading scheme
     @param q: default question, can be ""
+    @param qask: if false, request is coming from grading tool, don't ask for q, don't show rubric
 
     @return: error, rubric, q
     """
  
     error = ""
-    q = input(stdscr, "Question#", q, 3, 0).strip()
+    if qask:
+        q = input(stdscr, "Question#", q, 3, 0).strip()
+    else:
+        assert q.isdecimal(), "Error in q parameter while adding comment to rubric"
+
     if not q.isdecimal():
         error = "Expected Integer Question #"
         row = len(rubric) - 1
@@ -104,9 +114,10 @@ def editAssRubricAddComm(stdscr, rubric: list, q: str):
                 lrow = row
                 maxit = max(int(rubric[row][0].split('.')[1]) + 1, maxit)
             # reposition highlight
-            arrayRowSelect(stdscr, rubric, 8, 0, 0, 8, 0, lrow, True)
+            if qask:
+                arrayRowSelect(stdscr, rubric, 8, 0, 0, 8, 0, lrow, True)
 
-            error, pts, descr = editAssRubricComm(stdscr, "", "", int(q) == 99)
+            error, pts, descr = editAssRubricComm(stdscr, "", "", int(q) == 99, qask)
             if error == "":
                rubric.insert(row, ["  Q"+q+"."+str(maxit), pts, descr])
 

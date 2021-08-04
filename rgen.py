@@ -132,10 +132,13 @@ def gradeQ(stdscr, HwkCommCodesList: list, q: str, rubric, acs: int, ass: str, s
 
     assert (q[0] == 'Q' and q[-1] == ')') or (q[0:3] == '  Q' and '.' in q), "q arg not correctly formatted '" + q + "'"
 
+    pathR=os.getcwd()+'/course_data/assignments/'+ass+'/0_rubric.csv'
+
     qRubric = getQRubric(rubric, q)
 
     qRubric += [["Menu", "", ""]]
     qRubric += [["del comment", "", ""]]
+    qRubric += [["new rubric comment", "", ""]]
     qRubric += [["Next", "", ""]]
 
     found = False
@@ -176,8 +179,8 @@ def gradeQ(stdscr, HwkCommCodesList: list, q: str, rubric, acs: int, ass: str, s
         else:
             if acs < len(qRubric) - 3:
                 acs = len(qRubric) - 1
-        acs = arrayRowSelect(stdscr, qRubric, 4, 0, YPOS_STDGR - 2, 8, 0, acs, False)
-        if acs == len(qRubric) - 3:
+        acs = arrayRowSelect(stdscr, qRubric, 6, 0, YPOS_STDGR - 2, 8, 0, acs, False)
+        if acs == len(qRubric) - 4:
             m = menuInputH(stdscr, menu, 2, 0, 10, 0, m, False)
             if m == 0:
                 pass
@@ -192,7 +195,7 @@ def gradeQ(stdscr, HwkCommCodesList: list, q: str, rubric, acs: int, ass: str, s
                 break
             elif m == 4:
                 stdscr.addstr(3, 0, "Find All Students that have specific comment")
-                acs = arrayRowSelect(stdscr, qRubric, 4, 0, YPOS_STDGR - 2, 8, 0, 1, False)
+                acs = arrayRowSelect(stdscr, qRubric, 6, 0, YPOS_STDGR - 2, 8, 0, 1, False)
                 filterq = qRubric[acs][0]
                 if '.' not in filterq and ')' not in filterq:
                     filterq = None 
@@ -206,6 +209,12 @@ def gradeQ(stdscr, HwkCommCodesList: list, q: str, rubric, acs: int, ass: str, s
             cont = "NextS"
             break
         elif acs == len(qRubric) - 2:
+            error, rubric, q, row = editAssRubricAddComm(stdscr, rubric, q[1:].split(')')[0], False)
+            if error == "":
+                pathR=os.getcwd()+'/course_data/assignments/'+ass+'/0_rubric.csv'
+                exportCSV(pathR, rubric)             
+            break
+        elif acs == len(qRubric) - 3:
             sel, delCode = showHwkComments(stdscr, HwkCommCodesList, qRubric, q, YPOS_STDGR, 1, False, False) 
             cList = HwkCommCodesList[qi][2].split(',')
             # N.B. selected row will not reliably point to delCode in cList
@@ -443,7 +452,7 @@ def editAssRubric(stdscr, ass: str, m: int, lq: str):
         if m == 0:
             error, rubric, lq, s = editAssRubricAddQ(stdscr, rubric)
         elif m == 1:
-            error, rubric, lq, s = editAssRubricAddComm(stdscr, rubric, lq)
+            error, rubric, lq, s = editAssRubricAddComm(stdscr, rubric, lq, True)
         elif m in (2,3,4,5):  # Edit / move / delete find
             s = arrayRowSelect(stdscr, rubric, 8, 0, 0, 8, 0, s, False)
             if ')' not in rubric[s][0] and '.' not in rubric[s][0]:
@@ -459,7 +468,7 @@ def editAssRubric(stdscr, ass: str, m: int, lq: str):
                     error, pts, descr = editAssRubricQ(stdscr, rubric[s][1], rubric[s][2])
                 elif '.' in rubric[s][0]:
                     error, pts, descr = editAssRubricComm(stdscr, rubric[s][1], rubric[s][2], 
-                            'Q99.' in rubric[s][0] or 'Q99)' in rubric[s][0])
+                            'Q99.' in rubric[s][0] or 'Q99)' in rubric[s][0], True)
 
                 if error == "":
                     edItem = [rubric[s][0], pts, descr]
