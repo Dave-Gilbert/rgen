@@ -114,15 +114,104 @@ def insNewComment(stdscr, HwkCommCodes: str, q: str, qi: int, acs:int, qRubric: 
 
     return HwkCommCodes
 
+def gradeQTopMenu(stdscr, menu: list, acs:str, m:int , ass:str, q:str, qRubric:list, YPOS_STDGR:int, filterq:str):
+    """
+    Handle the horizontal menu selection for the top portion of grade Question view
+
+    @param stdscr: curses root window object
+    @param menu: top menu, horizontal selection items
+    @param acs: previous comment selection
+    @param m: previous horizontal row menu selection
+    @param ass: assignment
+    @param q: question to grade, prefixed by 'Q' suffixed by ')'
+    @param qRubric: the rubric for this question
+    @param YPOS_STDGR: the y position for the student grade display
+    @param filterq: restricts search to students with a specific comment
+    
+    @return: cont, acs, m, filterq
+    """
+
+    m = menuInputH(stdscr, menu, 2, 0, 10, 0, m, False)
+    if m == 0:
+        cont = "Cont"
+    elif m == 1:
+        cont = "PrevS"
+    elif m == 2:
+        cont = "NextQ"
+    elif m == 3:
+        editAssRubric(stdscr, ass, 2, q[1:].split(')')[0])
+        cont = "Cont"
+    elif m == 4:
+        stdscr.addstr(3, 0, "Find All Students that have specific comment")
+        acs = arrayRowSelect(stdscr, qRubric, 6, 0, YPOS_STDGR - 2, 8, 0, 1, False)
+        filterq = qRubric[acs][0]
+        if '.' not in filterq and ')' not in filterq:
+            filterq = None 
+        cont = "NewFilter"
+    elif m == 5:
+        cont = "Done"
+
+    return cont, acs, m, filterq
+
+
+def gradeQAddComment(stdscr, menu, acs, m, ass, q, qi, rubric, qRubric, HwkCommCodesList, YPOS_STDGR, filterq):    
+    """
+    The Comment Menu both adds comments, and provides access to other common functions, next, del, comment, menu...
+
+    @param stdscr: curses root window object
+    @param menu: top menu, horizontal selection items
+    @param acs: previous comment selection
+    @param m: previous horizontal row menu selection
+    @param ass: assignment
+    @param q: question to grade, prefixed by 'Q' suffixed by ')'
+    @param qi: integer pointer to question in Rubric
+    @param rubric: assignment rubric
+    @param qRubric: the rubric for this question
+    @param HwkCommCodesList: student assignment questions with comment codes
+    @param YPOS_STDGR: the y position for the student grade display
+    @param filterq: restricts search to students with a specific comment
+
+    return: HwkCommCodesList, rubric, cont, acs, m, filterq
+    """
+
+    cont = "loop"
+
+    if acs == len(qRubric) - 4:    # --> menu
+        cont, acs, m, filterq = gradeQTopMenu(stdscr, menu, acs, m, ass, q, qRubric, YPOS_STDGR, filterq)
+    elif acs == len(qRubric) - 3:  # --> del comment
+        sel, delCode = showHwkComments(stdscr, HwkCommCodesList, qRubric, q, YPOS_STDGR, 1, False, False) 
+        cList = HwkCommCodesList[qi][2].split(',')
+        # N.B. selected row will not reliably point to delCode in cList
+        # this is due to some inconsistencies between ordering of codes
+        # debug(stdscr, (cList, sel, delCode))
+        if sel <= len(cList) and sel > 0:             
+            cList.remove(delCode)
+            newCom = ",".join(cList)
+            newCom = [HwkCommCodesList[qi][0], HwkCommCodesList[qi][1], newCom]
+            HwkCommCodesList[qi] = newCom
+    elif acs == len(qRubric) - 2:  # --> new rubric item
+        error, rubric, q, row = editAssRubricAddComm(stdscr, rubric, q[1:].split(')')[0], False)
+        if error == "":
+            pathR=os.getcwd()+'/course_data/assignments/'+ass+'/0_rubric.csv'
+            exportCSV(pathR, rubric)             
+        cont = "Cont"
+    elif acs == len(qRubric) - 1: # --> next student
+        cont = "NextS"
+    else:
+        # insert a new comment if no special menu selection
+        HwkCommCodesList = insNewComment(stdscr, HwkCommCodesList, q, qi, acs, qRubric)
+
+    return HwkCommCodesList, rubric, cont, acs, m, filterq
 
 def gradeQ(stdscr, HwkCommCodesList: list, q: str, rubric, acs: int, ass: str, studident: list, filterq: str):
     """
     Grade an individual question
 
+    @param stdscr: curses root window object
     @param HwkCommCodesList: student assignment questions with comment codes
     @param q: question to grade, prefixed by 'Q' suffixed by ')'
     @param rubric: assignment rubric
-    @param acs: previous selection
+    @param acs: previous comment selection
     @param ass: assignment
     @param studident: student name and id
     @param filterq: restricts search to students with a specific comment
@@ -132,7 +221,6 @@ def gradeQ(stdscr, HwkCommCodesList: list, q: str, rubric, acs: int, ass: str, s
 
     assert (q[0] == 'Q' and q[-1] == ')') or (q[0:3] == '  Q' and '.' in q), "q arg not correctly formatted '" + q + "'"
 
-    pathR=os.getcwd()+'/course_data/assignments/'+ass+'/0_rubric.csv'
 
     qRubric = getQRubric(rubric, q)
 
@@ -152,15 +240,14 @@ def gradeQ(stdscr, HwkCommCodesList: list, q: str, rubric, acs: int, ass: str, s
         return HwkCommCodesList, "NextQ", 0, filterq
     
     if filterq == None:
-        menu = [" Grading " + ass + " " + q, "Edit Rubric", "Prev Stud", "Next Q)", "Find", "Done"]
+        menu = [" Grading " + ass + " " + q, "Prev Stud", "Next Q)", "Edit Rubric", "Find", "Done"]
     else:
-        menu = [" Grading " + ass + " " + filterq, "Edit Rubric", "Prev Stud", "Next Q)", "Find", "Done"]
-
-
+        menu = [" Grading " + ass + " " + filterq, "Prev Stud", "Next Q)", "Edit Rubric", "Find", "Done"]
     m = 0
 
-    cont = "Cont"
-    while True:
+    # cont controls how we break out of the loop and gives a reason why
+    cont = "loop"
+    while cont == "loop":
 
         stdscr.clear()
         maxy, maxx = stdscr.getmaxyx()
@@ -168,7 +255,7 @@ def gradeQ(stdscr, HwkCommCodesList: list, q: str, rubric, acs: int, ass: str, s
         # Dynamically reposition student comments section so all comments are visible
         # scroll rubric only if absolutely necessary
 
-        YPOS_STDGR = min(len(qRubric) + 10, maxy - max(HwkCommCodesList[qi][2].count('.') + 2, 4) )
+        YPOS_STDGR = min(len(qRubric) + 12, maxy - max(HwkCommCodesList[qi][2].count('.') + 2, 4) )
         menuInputH(stdscr, menu, 2, 0, 10, 0, m, True)
         stdscr.addstr(YPOS_STDGR - 1, 0, studident[0] + " " + studident[1])
         error = ""
@@ -180,55 +267,9 @@ def gradeQ(stdscr, HwkCommCodesList: list, q: str, rubric, acs: int, ass: str, s
             if acs < len(qRubric) - 3:
                 acs = len(qRubric) - 1
         acs = arrayRowSelect(stdscr, qRubric, 6, 0, YPOS_STDGR - 2, 8, 0, acs, False)
-        if acs == len(qRubric) - 4:
-            m = menuInputH(stdscr, menu, 2, 0, 10, 0, m, False)
-            if m == 0:
-                pass
-            elif m == 1:
-                editAssRubric(stdscr, ass, 2, q[1:].split(')')[0])
-                break
-            elif m == 2:
-                cont = "PrevS"
-                break
-            elif m == 3:
-                cont = "NextQ"
-                break
-            elif m == 4:
-                stdscr.addstr(3, 0, "Find All Students that have specific comment")
-                acs = arrayRowSelect(stdscr, qRubric, 6, 0, YPOS_STDGR - 2, 8, 0, 1, False)
-                filterq = qRubric[acs][0]
-                if '.' not in filterq and ')' not in filterq:
-                    filterq = None 
-                cont = "NewFilter"
-                break
-            elif m == 5:
-                cont = "Done"
-                break
-                 
-        elif acs == len(qRubric) - 1:
-            cont = "NextS"
-            break
-        elif acs == len(qRubric) - 2:
-            error, rubric, q, row = editAssRubricAddComm(stdscr, rubric, q[1:].split(')')[0], False)
-            if error == "":
-                pathR=os.getcwd()+'/course_data/assignments/'+ass+'/0_rubric.csv'
-                exportCSV(pathR, rubric)             
-            break
-        elif acs == len(qRubric) - 3:
-            sel, delCode = showHwkComments(stdscr, HwkCommCodesList, qRubric, q, YPOS_STDGR, 1, False, False) 
-            cList = HwkCommCodesList[qi][2].split(',')
-            # N.B. selected row will not reliably point to delCode in cList
-            # this is due to some inconsistencies between ordering of codes
-            # debug(stdscr, (cList, sel, delCode))
-            if sel <= len(cList) and sel > 0:             
-                cList.remove(delCode)
-                newCom = ",".join(cList)
-                newCom = [HwkCommCodesList[qi][0], HwkCommCodesList[qi][1], newCom]
-                HwkCommCodesList[qi] = newCom
-        else:
-            # insert a new comment if no special menu selection
-            HwkCommCodesList = insNewComment(stdscr, HwkCommCodesList, q, qi, acs, qRubric)
 
+        HwkCommCodesList, rubric, cont, acs, m, filterq = gradeQAddComment(stdscr, menu, acs, m, 
+                ass, q, qi, rubric, qRubric, HwkCommCodesList, YPOS_STDGR, filterq)    
 
     return HwkCommCodesList, cont, acs, filterq
 
@@ -249,23 +290,23 @@ def enterGrades(stdscr, ass: str, s):
     m = 0
     error = ""
     qi = 0
-    cont = ""
+    cont = "loop"
     filterq = None
     while cont != "Done":
        stdscr.clear()
        klist, kdict = genStudKeysScores(rubric, ass, filterq)
        assert len(klist)> 0, "keyword list = " + str(klist)
        if len(klist) == 1 and filerq != None:
-           # 1st line of klist should not be a student
+           # 1st line of klist shows question #s, last 2 show averages
            menuInputH(stdscr, ["no results for filter =" + filterq], 3, 0, 10, 0, 0, False)
            return
-       if s == 0 or s >= len(klist):           
+       if s == 0 or s >= len(klist) - 2:           
            s = 1 
-           stdscr.addstr(2, 0, "Select Student to Grade for " + ass)
-           s = arrayRowSelect(stdscr, klist, 3, 0, 0, 0, 50, s, False)
+       stdscr.addstr(2, 0, "Select Student to Grade for " + ass)
+       s = arrayRowSelect(stdscr, klist, 3, 0, 0, 0, 50, s, False)
        studkey = klist[s][0]
-       if studkey == "":
-           continue
+       if studkey == "" or studkey[0] == ' ':
+           break
        if filterq == None:
            qlist, qi, error = getQuestionToGrade(stdscr, rubric, qi, ass)
            if len(qlist) == 0:
@@ -279,7 +320,7 @@ def enterGrades(stdscr, ass: str, s):
        qnum = 0       
 
        while error == "":
-          q = qlist[qnum] 
+          q = qlist[qnum]
           studkey = klist[s][0]
           if not studkey in stdDict:
               break
@@ -305,7 +346,7 @@ def enterGrades(stdscr, ass: str, s):
                   else:
                       qnum = 0
                       s += 1
-                      if s >= len(klist):
+                      if s >= len(klist) - 2:  # last 2 rows show avgs
                           s = 1
               elif cont == "Cont":
                   pass
@@ -436,6 +477,8 @@ def editAssRubric(stdscr, ass: str, m: int, lq: str):
                 break
             s += 1
 
+    menu = ["Add Question", "Add Comment", "Move Comment", "Edit", "Delete", "Find", "Save/Done"]
+
     while True:
         stdscr.clear()
         if error == "":
@@ -444,7 +487,7 @@ def editAssRubric(stdscr, ass: str, m: int, lq: str):
             stdscr.addstr(3,0, error)
         error = ""
         s = arrayRowSelect(stdscr, rubric, 8, 0, 0, 8, 0, s, True)
-        m = menuInputH(stdscr, ["Add Question", "Add Comment", "Move Comment", "Edit", "Delete", "Find", "Save/Done"], 2, 0, 10, 0, m, False)
+        m = menuInputH(stdscr, menu, 2, 0, 10, 0, m, False)
 
         if m == 5:
             stdscr.addstr(4, 0, "Find All Students that have specific comment")
@@ -614,10 +657,6 @@ def showAllStudGrades(allStudGrades: list, s):
     @param allStudGrades: complete student grade information for all students / all assignments
     @param s: selected student
     """
-
-
-    menu = ["Next", "Prev", "Done"]
-
     g = -1
     while True:
         stdscr.clear()
@@ -655,6 +694,7 @@ def showAllStudGrades(allStudGrades: list, s):
                 else:
                     showArray += [[ass, allStudGrades[s][col],Q99Notes]]
                 showArray += [['','','']]
+
         showArray += [['','','']]
         showArray += [['Next','','']]
         showArray += [['Prev','','']]

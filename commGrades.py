@@ -105,15 +105,17 @@ def updateScoreFrComments(q: str, qi: int, qRubric: list, hwkCommCodes, ass: str
     @return - updates most inputs with grade scores / comments
     """
 
-    fmatch |= checkFilter(hcom[0], hcom[2], filterq)
     error, calc_ok, g = grCalc(q, hcom[2], qRubric)
     assert calc_ok, error
     if error != '':
         errc += 1
         errl = error
+    qmatch = checkFilter(hcom[0], hcom[2], filterq)
+    fmatch |= qmatch
     total += g
-    avgs[qi] += g
-    cnts[qi] += 1
+    if qmatch:  # only compute averages for questions that match the filter
+        avgs[qi] += g
+        cnts[qi] += 1
     strscore = float2str1d(g) + ' /' + qRubric[0][1] 
     if q == 'Q99)':
         dispComment, commentCodesQ = getDispComments(hwkCommCodes, qRubric, q, False)
@@ -206,20 +208,19 @@ def genStudKeysScores(rubric, ass, filterq):
             klist += [[studkey] + glist + [stot]]
             kdict[studkey] = [stot, N99]
     
-    if filterq == None:
-        avgstr = ['   averages']
-        for qi in range(0, len(avgs)):
-            if cnts[qi] == 0 or mpts[qi] == 0:
-                avgstr += ['']
-            else:
-                av = avgs[qi]/cnts[qi]
-                avgstr += [str(round(av, 1))+
-                        ' ('+str(round(100 * av/mpts[qi],1))+'%)']
+    avgstr = ['    average']
+    for qi in range(0, len(avgs)):
+        if cnts[qi] == 0 or mpts[qi] == 0:
+            avgstr += ['']
+        else:
+            av = avgs[qi]/cnts[qi]
+            avgstr += [str(round(av, 1))+
+                    ' ('+str(round(100 * av/mpts[qi],1))+'%)']
+    klist += [[''] * len(avgstr)]
+    klist += [avgstr]
+    if errc > 0:
         klist += [[''] * len(avgstr)]
-        klist += [avgstr]
-        if errc > 0:
-            klist += [[''] * len(avgstr)]
-            klist += [[' ' + str(errc) + ' errors, ' + errl] + [''] * (len(avgstr) - 1)]
+        klist += [[' ' + str(errc) + ' errors, ' + errl] + [''] * (len(avgstr) - 1)]
 
     return klist, kdict
 
