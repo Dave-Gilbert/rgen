@@ -106,20 +106,29 @@ def editAssRubricAddComm(stdscr, rubric: list, q: str, qask: bool):
         if irow == -1:
             error = "Question#" + q + " not defined"
         else:
-            lrow = irow + 1 # XXX double check +1
+            error, pts, descr = editAssRubricComm(stdscr, "", "", int(q) == 99, qask)
+
+            lrow = irow + 1
             maxit = 1;
+            pmatch = False
             for row in range(irow+1, len(rubric)):
+                # check for rough match (first 3 chars)
+                if len(rubric[row][2]) > 3 and rubric[row][2][0:2] == descr[0:2]:
+                    pmatch = True
+                    lrow = row + 1
+                # add to end of this question
                 if ")" in rubric[row][0] or rubric[row][0] == "":
                     break
-                lrow = row
+                if not pmatch: # if no match was found place the new item at the end 
+                    lrow = row + 1
                 maxit = max(int(rubric[row][0].split('.')[1]) + 1, maxit)
+
             # reposition highlight
             if qask:
                 arrayRowSelect(stdscr, rubric, 8, 0, 0, 8, 0, lrow, True)
 
-            error, pts, descr = editAssRubricComm(stdscr, "", "", int(q) == 99, qask)
             if error == "":
-               rubric.insert(row, ["  Q"+q+"."+str(maxit), pts, descr])
+               rubric.insert(lrow, ["  Q"+q+"."+str(maxit), pts, descr])
 
     return error, rubric, q, row
 

@@ -520,8 +520,8 @@ def editAssRubric(stdscr, ass: str, m: int, lq: str):
                 key = rubric[s][0]
                 if '.' in key or ')' in key:
                     klist, kdict = genStudKeysScores(rubric, ass, key)
-                    if len(klist) > 1:
-                        error = "Found " + str(len(klist) - 1) + " students referencing " + key + ", cannot delete"
+                    if len(klist) > 3:
+                        error = "Found " + str(len(klist) - 3) + " students referencing " + key + ", cannot delete"
                     else:
                         if ')' in rubric[s][0]:
                             error, rubric = editAssRubricRemQ(stdscr, rubric, rubric[s][0])
