@@ -125,6 +125,8 @@ def updateScoreFrComments(q: str, qi: int, qRubric: list, hwkCommCodes, ass: str
                 m='!'
                 if ass == 'NN':
                     m = '*'
+                    if row[2][0] == ':' and row[2][1] in '123456789':
+                        m = row[2][1]  # use digits 1-9 for alt grading schemes
                 if row[2][0] == ':' and row[2][1] in '?%':
                     m = row[2][1]
                 strscore += m
@@ -176,10 +178,10 @@ def genStudKeysScores(rubric, ass, filterq):
 
         total = 0
         maxsc = 0
-        fin = True
         stot = ''
         N99 = ''
         qi = 0
+        update_tot = False
         for q in qlist:
             for hcom in hwkCommCodes:
                 if hcom[0] == q:
@@ -190,15 +192,15 @@ def genStudKeysScores(rubric, ass, filterq):
             if hcom[2] != '':
                error, fmatch, errc, avgs, cnts, N99, glist, total =  updateScoreFrComments(
                   q, qi, qRubric, hwkCommCodes, ass, fmatch, hcom, filterq, total, errc, avgs, cnts, N99, glist)
+               if error == '':
+                  update_tot = True  # if any question gets a comment, show the total
             else:
-                if int(qRubric[0][1]) > 0:
-                    fin = False
                 glist += ['  ']
-
-            if fin:
-                stot = float2str1d(total) + ' /' + str(maxsc)
-
             qi += 1
+
+        if update_tot:
+            stot = float2str1d(total) + ' /' + str(maxsc)
+
 
         if fmatch:
             avgs[qi] += total
@@ -347,7 +349,6 @@ def grCalc(q: str, comCodes: str, qRubric: list):
             glist += [strg]
             settot += 1
             maxgr = float(strg)
-            # debug(None, "XXXXXXXX> " + com)
             continue
         
         match = False
@@ -357,10 +358,11 @@ def grCalc(q: str, comCodes: str, qRubric: list):
                 break
         assert match, "Comment Code '" + com + "' from list '"+comCodes+"'not found in Rubric " + str(qRubric)
 
+        # found rubric row that matches the comment from the comment list
         if rrow[1].isspace() or rrow[1] == '' or rrow[1] == '#.#':
             continue
         elif rrow[1][0] != '-':
-            allneg == False
+            allneg = False
             if rrow[1][0] != '+':
                 settot += 1
                 maxgr = float(rrow[1])

@@ -32,7 +32,7 @@ def editAssRubricQ(stdscr, pts: str, descr: str):
 
     return error, pts, descr
 
-def editAssRubricComm(stdscr, pts: str, descr: str, q99: bool, qask: bool):
+def editAssRubricComm(stdscr, pts: str, descr: str, q99: bool, qask: bool, nnass: bool):
     """
     Edits a rubric comment, does basic input validation.
 
@@ -51,8 +51,12 @@ def editAssRubricComm(stdscr, pts: str, descr: str, q99: bool, qask: bool):
 
     error = ""
     if q99:
-        stdscr.addstr(4 + shift,0, "q99 always hidden, ':?' or ':%' notes")
-        okprefix='?%'
+        if nnass:
+            stdscr.addstr(4 + shift,0, "q99 always hidden, ':?', ':%' notes. :[1-9] alt grading scheme")
+            okprefix='?%123456789'
+        else:
+            stdscr.addstr(4 + shift,0, "q99 always hidden, ':?' or ':%' notes")
+            okprefix='?%'
     else:
         stdscr.addstr(4 + shift,0, "Description prefixes = ':H' Hide Comment, ':n' custom value")
         okprefix='Hn'
@@ -76,7 +80,7 @@ def editAssRubricComm(stdscr, pts: str, descr: str, q99: bool, qask: bool):
     return error, pts, descr
 
 
-def editAssRubricAddComm(stdscr, rubric: list, q: str, qask: bool):
+def editAssRubricAddComm(stdscr, rubric: list, q: str, qask: bool, nnass: bool):
     """
     Add a new comment to the rubruc.
 
@@ -84,6 +88,7 @@ def editAssRubricAddComm(stdscr, rubric: list, q: str, qask: bool):
     @param rubric: complete grading scheme
     @param q: default question, can be ""
     @param qask: if false, request is coming from grading tool, don't ask for q, don't show rubric
+    @param nnass: the special notes assignment supports additional ':' comment codes
 
     @return: error, rubric, q
     """
@@ -106,7 +111,7 @@ def editAssRubricAddComm(stdscr, rubric: list, q: str, qask: bool):
         if irow == -1:
             error = "Question#" + q + " not defined"
         else:
-            error, pts, descr = editAssRubricComm(stdscr, "", "", int(q) == 99, qask)
+            error, pts, descr = editAssRubricComm(stdscr, "", "", int(q) == 99, qask, nnass)
 
             lrow = irow + 1
             maxit = 1;

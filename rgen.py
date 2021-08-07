@@ -190,7 +190,7 @@ def gradeQAddComment(stdscr, menu, acs, m, ass, q, qi, rubric, qRubric, HwkCommC
             newCom = [HwkCommCodesList[qi][0], HwkCommCodesList[qi][1], newCom]
             HwkCommCodesList[qi] = newCom
     elif acs == len(qRubric) - 2:  # --> new rubric item
-        error, rubric, q, row = editAssRubricAddComm(stdscr, rubric, q[1:].split(')')[0], False)
+        error, rubric, q, row = editAssRubricAddComm(stdscr, rubric, q[1:].split(')')[0], False, ass=='NN')
         if error == "":
             pathR=os.getcwd()+'/course_data/assignments/'+ass+'/0_rubric.csv'
             exportCSV(pathR, rubric)             
@@ -495,7 +495,7 @@ def editAssRubric(stdscr, ass: str, m: int, lq: str):
         if m == 0:
             error, rubric, lq, s = editAssRubricAddQ(stdscr, rubric)
         elif m == 1:
-            error, rubric, lq, s = editAssRubricAddComm(stdscr, rubric, lq, True)
+            error, rubric, lq, s = editAssRubricAddComm(stdscr, rubric, lq, True, ass=='NN')
         elif m in (2,3,4,5):  # Edit / move / delete find
             s = arrayRowSelect(stdscr, rubric, 8, 0, 0, 8, 0, s, False)
             if ')' not in rubric[s][0] and '.' not in rubric[s][0]:
@@ -511,7 +511,7 @@ def editAssRubric(stdscr, ass: str, m: int, lq: str):
                     error, pts, descr = editAssRubricQ(stdscr, rubric[s][1], rubric[s][2])
                 elif '.' in rubric[s][0]:
                     error, pts, descr = editAssRubricComm(stdscr, rubric[s][1], rubric[s][2], 
-                            'Q99.' in rubric[s][0] or 'Q99)' in rubric[s][0], True)
+                            'Q99.' in rubric[s][0] or 'Q99)' in rubric[s][0], True, ass=='NN')
 
                 if error == "":
                     edItem = [rubric[s][0], pts, descr]
@@ -553,7 +553,8 @@ def noteWeight(note:str):
     ? = 1  odd questions about students
     """
 
-    stab = {'%':50, '!':10, '*':3, '?':1, ' ':0 }
+    stab = {'1':100,'2':100,'3':100,'4':100,'5':100,'6':100,'7':100,'8':100,'9':100,
+            '%':50, '!':10, '*':3, '?':1, ' ':0 }
     score = 0
     for ch in note:
         score -= stab[ch]
@@ -618,19 +619,35 @@ def getAllStudGrades(stdList, stdDict, cAss, sort):
         tweight = 0
         tscore = 0
         N99 = ''
+        gradekey = 0
+        # first lookup general notes for student
+        # we need this so we can extract the grading scheme
+        for row in cAss:
+            if row[0] == 'NN':
+                kdict = allDicts[row[0]]
+                N99 += kdict[stud[0]][1]
+        for ch in N99:
+            if ch in '123456789':
+                gradekey = int(ch)
+                if gradekey + 2 >= len(cAss[0]):
+                    debug(None, "Grade Key " + ch + " not defined in " + str(cAss[0]))
+                    gradekey = 0
+                break
 
         for row in cAss:
             kdict = allDicts[row[0]]
             score = kdict[stud[0]][0]
             allStudGrRow += [kdict[stud[0]][0]]
-            N99 += kdict[stud[0]][1]
+
+            if row[0] != 'NN':  # already accounted for
+                N99 += kdict[stud[0]][1]
 
             if score.split('/')[0] != '':
                 scorenum = float(score.split('/')[0])
                 scoreden = float(score.split('/')[1])
                 if scoreden > 0:
-                    tweight += float(row[2])
-                    tscore += float(row[2]) * scorenum / scoreden
+                    tweight += float(row[2 + gradekey])                         # XXX select alt grade schemes
+                    tscore += float(row[2 + gradekey]) * scorenum / scoreden
 
         row_w_totals = allStudGrRow + [ float2str1d(studKeyVsZtimeDict[stud[0]])] + \
                 [float2str1d(tscore) + ' /'  + float2str1d(tweight)] + ['   ' + N99]
