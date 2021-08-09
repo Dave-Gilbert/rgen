@@ -251,11 +251,11 @@ def gradeQ(stdscr, HwkCommCodesList: list, q: str, rubric, acs: int, ass: str, s
 
         stdscr.clear()
         maxy, maxx = stdscr.getmaxyx()
-        # Leave enough room for all student comments plus 2 extra.
+        # Leave enough room for all student comments plus several extra.
         # Dynamically reposition student comments section so all comments are visible
         # scroll rubric only if absolutely necessary
 
-        YPOS_STDGR = min(len(qRubric) + 12, maxy - max(HwkCommCodesList[qi][2].count('.') + 2, 4) )
+        YPOS_STDGR = min(len(qRubric) + 12, maxy - max(HwkCommCodesList[qi][2].count('.') + 6, 4) )
         menuInputH(stdscr, menu, 2, 0, 10, 0, m, True)
         stdscr.addstr(YPOS_STDGR - 1, 0, studident[0] + " " + studident[1])
         error = ""
@@ -420,7 +420,7 @@ def showGrades(stdscr, ass: str, s: int, filterq):
             return
 
         stdscr.addstr(2, 0, "Select Student to Show Grade for " + ass)
-        s = arrayRowSelect(stdscr, klist, 3, 0, 0, 12, 50, s, False)
+        s = arrayRowSelect(stdscr, klist, 3, 0, 0, 8, 50, s, False)
 
         
         studkey = klist[s][0]
@@ -603,7 +603,7 @@ def getAllStudGrades(stdList, stdDict, cAss, sort):
     for row in cAss:
         allStudGrRow += [row[0]]
 
-    allStudGrades = [allStudGrRow + ['     Hours', '     Grade', '    Notes']]
+    allStudGrades = [allStudGrRow + ['   Hours', '   Grade', '   Notes']]
 
     allDicts = {}
     for row in cAss:

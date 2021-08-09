@@ -33,25 +33,127 @@ def debug(stdscr, arg):
     stdscr.addstr(0,10, "DBG> " + str(arg) + "              ")
     stdscr.getch()
 
-def fitItem(item: str, cWidth: int):
+def fitItem(item: str, cWidth: int, num:bool):
     """
     Left justify if item appears to be a number
 
     @param item: display item in string format
     @param cWidth: width of the cell
+    @param num: whether item might be a number, if so right justify instead of left
     """
 
-    num=True
     for let in item:
         if let.isalpha():
             num = False
 
     if num:
-        item = (" " * cWidth + item + " ")[-cWidth:]
+        # don't trim numbers, hide them if not enough space
+        if len(item) < cWidth:
+            item = (" " * cWidth + item + " ")[-cWidth:]
+        else:
+            item = (" " * cWidth + "... > ")[-cWidth:]
     else:
-        item = (" " + item + " " * cWidth)[0:1+cWidth]
+        if len(item) < cWidth - 1:
+            item = (" " + item + " " * cWidth)[:cWidth]
+        else:
+            if cWidth < 12:
+            # conservative trimming for narrow fields
+                item = (" " + item + " " * cWidth)[:cWidth - 1] + ">"
+            else:
+                item = (" " + item + " " * cWidth)[:cWidth - 5] + " .. >"
 
     return item
+
+
+def arrayDrawItems(stdscr, py:int, px:int, shift:int, array: list, sel, nowait, maxy, maxx, twidth, colWidth):
+    """
+    Draws the arraw of items on the screen one time. Handles wrapping and clipping.
+
+    """
+
+    shift = 0
+    if py + sel + 5>= maxy:
+       shift = (py + sel + 5) - maxy
+
+    if shift >= min(maxy - py + shift - 1, len(array)):
+        # nothing to draw
+        return
+
+    pos = px + 1
+    xtra_lines = 0
+    for row in range(shift, min(maxy - py + shift - 1, len(array))):
+       pos = px
+       for col in range(0, len(colWidth)):
+            if  pos >= maxx:
+                # if this column is off the screen
+                if row == sel and not nowait:
+                    stdscr.addstr(py + row - shift, maxx -3, ".>", curses.A_REVERSE)
+                else:
+                    stdscr.addstr(py + row - shift, maxx -3, ".>")
+
+            elif  pos + colWidth[col] + 2 < maxx:
+                # if this column is on the screen
+                item = fitItem(array[row][col], colWidth[col], True)
+                if row == sel and not nowait:
+                    stdscr.addstr(py + row - shift, pos, item, curses.A_REVERSE)
+                else:
+                    stdscr.addstr(py + row - shift, pos, item)
+            else:
+                # some room for column but doesn't quite fit, check how much room is left
+                spaceLeft = maxx - pos - 4
+                out_str = array[row][col]
+
+                # given a collection of special conditions some long comments
+                # are rendered on multiple lines. Next line is overwritten so
+                # selection must be highlighted, or next line must be blank
+
+                if col == len(colWidth) - 1 and not nowait and spaceLeft > 12 and (row == len(array) - 1 
+                        or array[row + 1][0] == '' or row == sel) and len(out_str) > spaceLeft - 2:
+
+                    xtra_lines = -1
+                    while len(out_str) > 0:
+                        xtra_lines += 1
+                        out_spc = min(spaceLeft-2, len(out_str)-2)
+                        while out_str[out_spc] != ' ' and out_spc > 0:
+                            out_spc -= 1
+                        if out_spc == 0:
+                            out_spc = spaceLeft-2
+
+                        item = fitItem(out_str[:out_spc], spaceLeft, False)
+                        if row == sel and not nowait:
+                            stdscr.addstr(py + row - shift + xtra_lines, pos, item, curses.A_REVERSE)
+                        else:
+                            if xtra_lines == 1:
+                                # only do one extra line for non select case
+                                item = fitItem(out_str, spaceLeft, False)
+                                stdscr.addstr(py + row - shift + xtra_lines, pos, item)
+                                break
+                            stdscr.addstr(py + row - shift + xtra_lines, pos, item)
+                        out_str = out_str[out_spc:]
+
+                elif spaceLeft > 0:
+                    if xtra_lines > 0:
+                        xtra_lines -= 1
+                    else:
+                        item = fitItem(out_str, spaceLeft, True)
+                        if row == sel and not nowait:
+                            stdscr.addstr(py + row - shift, pos, item, curses.A_REVERSE)
+                        else:
+                            stdscr.addstr(py + row - shift, pos, item)
+
+            pos = pos + colWidth[col] + 1
+
+    mark = "     "
+    if row < len(array) - 1:
+        mark = "--V--"
+
+    for pos in range(0, min(maxx - 5, twidth), 5):
+        stdscr.addstr(py + row - shift + 1, pos, mark)
+
+    # reposition cursor
+    if py + sel-shift < maxy:
+        stdscr.move(py + sel-shift, px)
+        stdscr.refresh()
 
 
 def arrayRowSelect(stdscr, array: list, py: int, px: int, maxpy: int, minw: int, maxw: int, sel: int, nowait: bool) -> int:
@@ -91,13 +193,14 @@ def arrayRowSelect(stdscr, array: list, py: int, px: int, maxpy: int, minw: int,
         fwidth = minw
         for row in range(0, rows):
             assert len(array[row]) == cols, str("found array[row]='" + str(array[row]) + "' expected cols = " + str(cols))
-            fwidth = max(len(array[row][col])+1, fwidth)
+            fwidth = max(len(array[row][col])+2, fwidth)
             if maxw > 0:
                 fwidth = min(fwidth, maxw)
         colWidth += [fwidth]
-        twidth += fwidth + 2
+        twidth += fwidth + 1
 
     c = 0
+    shift = 0
     while True:
 
         if c == 258:  # down
@@ -124,51 +227,14 @@ def arrayRowSelect(stdscr, array: list, py: int, px: int, maxpy: int, minw: int,
         if maxpy > 0:
             maxy = min(maxy, maxpy)
 
-        shift = 0
-        if py + sel + 5>= maxy:
-            shift = (py + sel + 5) - maxy
-
         # draw all items
-        pos = px + 1
-        for row in range(shift, min(len(array), maxy - py + shift - 1)):
-           pos = px
-           for col in range(0, len(colWidth)):
-                if  pos + colWidth[col] + 2 < maxx:
-                    item = fitItem(array[row][col], colWidth[col])
-                    if row == sel and not nowait:
-                        stdscr.addstr(py + row - shift, pos, item, curses.A_REVERSE)
-                    else:
-                        stdscr.addstr(py + row - shift, pos, item)
-                else:
-                    trim = maxx - pos - 4 
-                    if trim > 0:
-                        item = fitItem(array[row][col], trim) + " > "
-                        stdscr.addstr(py + row - shift, pos, item)
-
-                pos = pos + colWidth[col] + 2
-
-        # debug(stdscr, (row, sel, len(array) - 1, shift))
-        # if row + 1 == maxy - py + shift - 1:
-        mark = "     "
-        if row < len(array) - 1:
-            mark = "--V--"
-            # if row == maxy - py + shift: 
-            # if sel == len(array) - 1:
-
-        for pos in range(0, min(maxx - 5, twidth), 5):
-            stdscr.addstr(py + row - shift + 1, pos, mark)
+        arrayDrawItems(stdscr, py, px, shift, array, sel, nowait, maxy, maxx, twidth, colWidth)
 
         if nowait:
             stdscr.refresh()            
             return sel
-
-        # reposition cursor
-        if py + sel-shift < maxy:
-            stdscr.move(py + sel-shift, px)
-        stdscr.refresh()
     
         c = stdscr.getch()
- 
     
 
 def menuInputH(stdscr, menu :list, py: int, px: int, minw: int, maxw: int, sel: int, nowait: bool) -> int:

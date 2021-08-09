@@ -217,7 +217,7 @@ def genStudKeysScores(rubric, ass, filterq):
         else:
             av = avgs[qi]/cnts[qi]
             avgstr += [str(round(av, 1))+
-                    ' ('+str(round(100 * av/mpts[qi],1))+'%)']
+                    '='+str(int(round(100 * av/mpts[qi],0)))+'%']
     klist += [[''] * len(avgstr)]
     klist += [avgstr]
     if errc > 0:
