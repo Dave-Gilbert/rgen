@@ -109,7 +109,7 @@ Questions 8, 9 and 10 were scored subtractively by deducting points from the
 total. Each deduction includes an explanatory comment. Rgen includes error
 checks that prevent negative scores and prevent multiple contradictory fixed
 scores.  Rgen also supports additive comments, where scoring starts at zero and
-each comment increases total for the question.
+each comment increases the total for the question.
 
 In the case of multiple choice quizzes or other evaluations that are completed
 within within MyCanvas, MyCanvas scores can be downloaded and merged with other
@@ -262,7 +262,7 @@ records can be viewed. This same view will also show the details for any
 special notes that are relevant to this student. This view can also be used to
 drill down into the individual assignments and review or edit details.
 
-![Example Student Record](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_9.png)
+![Example Student Record](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_14_final_grade.png)
 
 ## Anecdotal Conclusions
 
