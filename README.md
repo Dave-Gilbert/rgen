@@ -53,38 +53,28 @@ Stevens and Levi, 2005.  The following rubric is taken from this book:
 
 ![Example Rubric, Stevens 2005](https://github.com/Dave-Gilbert/rgen/blob/main/images/Stevens_Example_Rubric_p70.png)
 
-When I started teaching at Mohawk College I tried to build rubrics with
-spreadsheets by grading a few homework submissions to get a sense of what
+When I started teaching at Mohawk College I built rubrics with
+spreadsheets by first grading a few homework submissions to get a sense of what
 students typically did, and then I would write out a checklist for each
-question.  Problems arose when I tried to apply this early draft of my
-checklist to the rest of the student submissions. I would notice patterns later
-on that I hadn't imagined, or decide that a grade item that I originally
-believed would be important hardly ever came up. I would often rewrite the
-comment columns of my spreadsheet based rubric when I was half done grading an
-assignment and then recopy these columns into partially graded answer sheets. I
-regularly regraded many of the submissions I looked at initially after having
-completely surveyed all the submissions in an attempt to ensure that specific
-comments were consistent. Sometimes one student would do something odd, I'd
-make a comment on it, but then forget which student had written the unusual
-answer and spend a lot of time looking for it. The process was tedious and
-error prone.
+question.  Problems arose when I tried to apply the early draft of my checklist
+to the rest of the student submissions. I would notice patterns that I hadn't
+anticipated, or decide that a grade item that I originally believed would be
+important hardly ever came up. I often rewrote the comment columns of my
+spreadsheet based rubric when I was half done grading an assignment and then
+had to recopy these columns into partially graded answer sheets. Sometimes I'd
+start grading again from the beginning with the revised comment checklist and
+toss out my early comments. 
 
 I also ran into some persistent bookkeeping problems. For each assignment I
 needed to build a rather complicated multi-page spreadsheet that had each
-student's name and id associated with each rubric. Individual students would
-sometimes make special requests for extensions, or have other issues with their
-assignment that required some additional attention. Merging this data at the
-end of a course was time consuming. While a spreadsheet could nicely handle
-addition, it didn't help much with file management, and I couldn't figure out a
-good way to merge several multi-page spreadsheets automatically.
+student's name and id associated with each rubric. Some students would make
+special requests for extensions, or have other issues with their assignment
+that required additional attention.
 
-After a while I realized that my primary frustration with grading student
-papers was not about really reading through all their solutions, or considering
-how to evaluate the sometimes strange answers my students wrote, but it boiled
-down to too much fiddly note keeping. Efficiently keeping track of all the
-small details, correctly handling endless columns of numbers, finding all the
-relevant notes, and providing consistent commentary ate up huge amounts of
-time. This was my motivation for developing Rgen, to automate bookkeeping and
+My primary frustration with grading student papers was not about really reading
+through all their solutions, or considering how to evaluate the sometimes
+strange answers my students wrote, but it boiled down to too much note keeping.
+This was my motivation for developing Rgen, to automate bookkeeping and
 consistency tasks, so I could focus on thinking about what my students had
 learned in the recent weeks of the course.
 
@@ -100,33 +90,33 @@ the test results for a single student. Actual student names have been removed
 from the screen-capture. This bird's eye perspective shows per question
 averages giving a detailed snapshot of the first term test for the course.
 
-![Example Student Grade Sheet](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_10.png)
+![Example Student Grade Sheet](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_10_select_student_show_grade.png)
 
 The table is also a menu. By highlighting a specific student and pressing
 enter, the detailed comments given for each question can be viewed.
 
 The following grade sheet shows question scores and typical comments supplied
-for an example student. In this test, questions 2 through 7 were automatically
-graded by the Mohawk College LMS MyCanvas, and these scores were manually
-entered in to Rgen. MyCanvas has no way to export partial test answers, so some
-manual data entry is necessary.
+for an example student. In this test, questions 2 through 7 were multiple
+choice and automatically graded by the Mohawk College LMS MyCanvas. These
+scores were manually entered in to Rgen. MyCanvas has no way to export partial
+test answers, so some manual data entry is necessary.
 
 ![Example Student Grade Sheet](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_1.png)
 
 Scores are calculated in several ways, 2 are shown in the preceding example.  A
 fixed value score can be entered, this strategy is used in questions 1 - 7.
-Questions 8, 9 and 10 were scored subtractively by deducting points from a
+Questions 8, 9 and 10 were scored subtractively by deducting points from the
 total. Each deduction includes an explanatory comment. Rgen includes error
 checks that prevent negative scores and prevent multiple contradictory fixed
 scores.  Rgen also supports additive comments, where scoring starts at zero and
 each comment increases total for the question.
 
-In the case of multiple choice
-quizzes or other evaluations that are completed within within MyCanvas,
-MyCanvas scores can be downloaded and merged with other data collected by Rgen.
-The following view shows a partial grade calculation for a student listing
-scores for the first few assignments and the first test. The second term test,
-final assignment and final exam have not yet been added to the totals. 
+In the case of multiple choice quizzes or other evaluations that are completed
+within within MyCanvas, MyCanvas scores can be downloaded and merged with other
+data collected by Rgen.  The following view shows a partial grade calculation
+for a student listing scores for the first few assignments and the first test.
+The second term test, final assignment and final exam have not yet been added
+to the totals. 
 
 ![Example Student Final Grade](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_9.png)
 
@@ -142,7 +132,7 @@ Starting from the top level student information view an instructor selects
 and assignments for the course and their associated weights. "T1" is the first
 term test in the course. 
 
-![Selecting a Term Test](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_12.png)
+![Selecting a Term Test](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_12_enter_grades.png)
 
 When grading a question, the instructor may choose to grade a single question
 or a small group of questions for each student. Question #8 is worth 10
@@ -150,7 +140,7 @@ points. It asked students to write a short Python if ... elif ... else
 structure that converted a 3 letter month to a yearly quarter, i.e. "Jan" ->
 "Q1", "Feb" -> "Q1", "Dec" -> "Q4".
 
-![Selecting a Question to Grade](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_11.png)
+![Selecting a Question to Grade](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_11_select_question.png)
 
 The following menu is used to provide comments and grades for a single
 question. The menu at the top shows a list of comments and their associated
@@ -190,7 +180,7 @@ the comment, the system will recalculate all grades. Rgen includes a check for
 question scores that go over the maximum or under the minimum and will generate
 a warning until all scores fit within the prescribed ranges.
 
-![Example Editing Rubric](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_4.png)
+![Example Editing Rubric](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_4_edit_rubric.png)
 
 Comment codes are exposed when grading student work, they include the question
 number and a decimal point followed by a comment number i.e.  "Q8.1", "Q8.2"
@@ -212,7 +202,7 @@ any student's work. The following screencap shows a warning displayed by Rgen
 when trying to delete a comment which has already been applied to several grade
 reports. 
 
-![Preventing Deletion](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_13.png)
+![Preventing Deletion](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_13_rubric_delete.png)
 
 ## Rgen Searching for Students with particular Comments
 
@@ -240,7 +230,7 @@ test.
 
 Rgen includes a collection of course management features. 
 
-MyCanvas will export summary grade spreadsheet for a course in .csv format
+MyCanvas will export a summary grade spreadsheet for a course in .csv format
 which record results for each assignment and student recorded so far.  Rgen can
 construct an "imported" rubric and merge in data from MyCanvas, identifying the
 source file from which grades were derived as part of constructing a complete
@@ -277,28 +267,24 @@ drill down into the individual assignments and review or edit details.
 Prior to using this rubric generating tool I used a variety of different
 grading strategies. 20 years ago when I was in graduate school the norm was to
 sit down with a stack of homework assignments and write on each with a red pen.
-I found this style of grading extremely difficult. I've only worked at the
-college for a few years. During my first year I relearned how to use a
-spreadsheet, following the lead of senior staff who would often communicate
-grading templates via spreadsheets. MyCanvas, the learning management system
-used by the college includes a static rubric system. These must be set up in
-advance of student submissions, and don't seem very flexible to me.
+I found this style of grading extremely difficult. More recently I've used
+spreadsheets to build grade reports which was an improvement over manual
+notekeepign, although not ideal.
 
 I wrote the initial version of Rgen in a few weeks at the start of the summer
 semester and have been using it to evaluate student homework and test
 submissions since then. With each homework assignment that I grade I find a few
-bugs or limitations in Rgen that I fix. Generally I find that I grade and
-return things much faster than I did in the past, and that the supplied
-comments are far more detailed than I would normally be able to provide.  I
-believe that the consistency of the remarks and the shorter grading times
-contribute to better learning outcomes, and generally happier students.
+bugs or limitations in Rgen that I fix. I grade and return things much faster
+than I did in the past, and that the supplied comments are far more detailed
+than I would normally be able to provide.  I believe that the consistency of
+the remarks and the shorter grading times contribute to better learning
+outcomes, and generally happier students.
 
 I occasionally suffer from wrist strain. It is an occupational hazard in
 computing. I've spent time optimizing the menus in Rgen to minimize key
 strokes. While its still necessary to type in comments the first time, I find
 its much easier to navigate simple menus with cursor keys than it is to scroll
-through spreadsheet cells, and switch back and forth between a mouse and keyboard, 
-or constantly retype remarks into spreadsheet cells.
+through spreadsheet cells, or constantly retype remarks.
 
 ## Bugs and Rough Edges
 
@@ -321,19 +307,20 @@ files.  You can extend the student list or the assignments list at any time,
 although currently this functionality is not menu driven, but can be done with
 a text editor.
 
-Rgen is generally reliable, although there are no guarantees. 
+Cancelling actions isn't handled consistently. Selecting an empty row, or a row
+with headings will often undo an action, although most people usually hit the
+escape key in these situations. This is currently high on the todo list.
 
-There are a few corner cases that cause the code to generate exceptions. Rgen
-can be restarted in cases like this without any data loss. 
-
-Each time a modification to either a rubric or a student's grade is made Rgen
-will save the update to a .csv file on the disk. Very little state information
-is kept in memory without saving it to disk. Performance concerns were ignored
-for the sake of reliability.
-
-Rgen may destroy all of your student grades and notes for a course. My personal
-file system is backed up regularly, backups are essential when working with
-sensitive data.
+Rgen is generally reliable, although there are no guarantees. There are a few
+corner cases that cause the code to generate exceptions. Rgen works best in a
+terminal which is more than 100 characters wide. It supports clipping,
+wrapping, and scrolling of oversized data sets in small terminal windows,
+although the curses library may fail if the terminal is reduced to a width of
+less than 40 characters wide. Rgen can be restarted in cases like this without
+any data loss. Each time a modification to either a rubric or a student's grade
+is made Rgen will save the update to a .csv file on the disk. Performance
+concerns were ignored for the sake of reliability. Very little state
+information is kept in memory without saving it to disk. 
 
 Rgen uses the curses library for character based screen management and has been
 developed within a Linux bash environment. The curses library will normally be
