@@ -129,8 +129,10 @@ this view.
 
 Starting from the top level student information view an instructor selects
 "Enter Grades" from the horizontal menu and is presented with a table of tests
-and assignments for the course and their associated weights. "T1" is the first
-term test in the course. 
+and assignments for the course and their associated weights. This course
+provides 3 different weighting schemes: a default one, one where homework
+scores are ignored, and one which allows the grade calculation to be
+overridden. "T1" is the first term test in the course. 
 
 ![Selecting a Term Test](https://github.com/Dave-Gilbert/rgen/blob/main/images/RGEN_12_enter_grades.png)
 
