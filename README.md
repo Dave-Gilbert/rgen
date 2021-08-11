@@ -271,16 +271,16 @@ grading strategies. 20 years ago when I was in graduate school the norm was to
 sit down with a stack of homework assignments and write on each with a red pen.
 I found this style of grading extremely difficult. More recently I've used
 spreadsheets to build grade reports which was an improvement over manual
-notekeepign, although not ideal.
+notekeeping, although not ideal.
 
 I wrote the initial version of Rgen in a few weeks at the start of the summer
 semester and have been using it to evaluate student homework and test
 submissions since then. With each homework assignment that I grade I find a few
 bugs or limitations in Rgen that I fix. I grade and return things much faster
-than I did in the past, and that the supplied comments are far more detailed
-than I would normally be able to provide.  I believe that the consistency of
-the remarks and the shorter grading times contribute to better learning
-outcomes, and generally happier students.
+than I did in the past. The supplied comments are far more detailed than I
+would normally be able to provide.  I believe that the consistency of the
+remarks and the shorter grading times contribute to better learning outcomes,
+and generally happier students.
 
 I occasionally suffer from wrist strain. It is an occupational hazard in
 computing. I've spent time optimizing the menus in Rgen to minimize key
