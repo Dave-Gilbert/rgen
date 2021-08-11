@@ -127,7 +127,7 @@ def updateScoreFrComments(q: str, qi: int, qRubric: list, hwkCommCodes, ass: str
                     m = '*'
                     if row[2][0] == ':' and row[2][1] in '123456789':
                         m = row[2][1]  # use digits 1-9 for alt grading schemes
-                if row[2][0] == ':' and row[2][1] in '?%':
+                if row[2][0] == ':' and row[2][1] in '?%A':
                     m = row[2][1]
                 strscore += m
         if strscore != '':

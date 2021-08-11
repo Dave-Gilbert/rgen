@@ -52,11 +52,11 @@ def editAssRubricComm(stdscr, pts: str, descr: str, q99: bool, qask: bool, nnass
     error = ""
     if q99:
         if nnass:
-            stdscr.addstr(4 + shift,0, "q99 always hidden, ':?', ':%' notes. :[1-9] alt grading scheme")
-            okprefix='?%123456789'
+            stdscr.addstr(4 + shift,0, "q99 always hidden, ':?', ':%', ':A' notes. :[1-9] alt grading scheme")
+            okprefix='?%A123456789'
         else:
-            stdscr.addstr(4 + shift,0, "q99 always hidden, ':?' or ':%' notes")
-            okprefix='?%'
+            stdscr.addstr(4 + shift,0, "q99 always hidden, ':?', ':%', ':A' notes")
+            okprefix='?%A'
     else:
         stdscr.addstr(4 + shift,0, "Description prefixes = ':H' Hide Comment, ':n' custom value")
         okprefix='Hn'

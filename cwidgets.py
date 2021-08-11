@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 """
-
 @note
 
 rgen uses curses for screen rendering. 
@@ -65,10 +64,23 @@ def fitItem(item: str, cWidth: int, num:bool):
     return item
 
 
-def arrayDrawItems(stdscr, py:int, px:int, shift:int, array: list, sel, nowait, maxy, maxx, twidth, colWidth):
+def arrayDrawItems(stdscr, py:int, px:int, array: list, maxy:int, maxx:int,
+        twidth:int, colWidth:list, sel:int, nowait: bool):
     """
     Draws the arraw of items on the screen one time. Handles wrapping and clipping.
 
+    @param stdscr: ncurses root object
+    @param py: y position of input widget
+    @param px: x position of input widget
+    @param array: 2d array of items to be selected from
+    @param maxy: maximum y screen position
+    @param maxx: maximum x screen position
+    @param twidth: total width of the table
+    @param colWidth: list of individual column widths
+    @param sel: the initial selection, 0 == first row
+    @param nowait: - just display, don't wait for input
+
+    @return: integer representing selection, 0 .. len(list) - 1
     """
 
     shift = 0
@@ -113,12 +125,15 @@ def arrayDrawItems(stdscr, py:int, px:int, shift:int, array: list, sel, nowait, 
                     xtra_lines = -1
                     while len(out_str) > 0:
                         xtra_lines += 1
-                        out_spc = min(spaceLeft-2, len(out_str)-2)
-                        while out_str[out_spc] != ' ' and out_spc > 0:
-                            out_spc -= 1
-                        if out_spc == 0:
-                            out_spc = spaceLeft-2
-
+                        if len(out_str) < spaceLeft - 2:
+                            out_spc = len(out_str)
+                        else:
+                            out_spc = spaceLeft - 2
+                            while out_str[out_spc] != ' ' and out_spc > 0:
+                                out_spc -= 1
+                            if out_spc == 0:
+                                out_spc = spaceLeft-2
+                        # debug(None, (out_spc, out_str))
                         item = fitItem(out_str[:out_spc], spaceLeft, False)
                         if row == sel and not nowait:
                             stdscr.addstr(py + row - shift + xtra_lines, pos, item, curses.A_REVERSE)
@@ -127,6 +142,7 @@ def arrayDrawItems(stdscr, py:int, px:int, shift:int, array: list, sel, nowait, 
                                 # only do one extra line for non select case
                                 item = fitItem(out_str, spaceLeft, False)
                                 stdscr.addstr(py + row - shift + xtra_lines, pos, item)
+                                # debug(None, (row, sel, nowait))
                                 break
                             stdscr.addstr(py + row - shift + xtra_lines, pos, item)
                         out_str = out_str[out_spc:]
@@ -200,7 +216,6 @@ def arrayRowSelect(stdscr, array: list, py: int, px: int, maxpy: int, minw: int,
         twidth += fwidth + 1
 
     c = 0
-    shift = 0
     while True:
 
         if c == 258:  # down
@@ -228,7 +243,7 @@ def arrayRowSelect(stdscr, array: list, py: int, px: int, maxpy: int, minw: int,
             maxy = min(maxy, maxpy)
 
         # draw all items
-        arrayDrawItems(stdscr, py, px, shift, array, sel, nowait, maxy, maxx, twidth, colWidth)
+        arrayDrawItems(stdscr, py, px, array, maxy, maxx, twidth, colWidth, sel, nowait)
 
         if nowait:
             stdscr.refresh()            

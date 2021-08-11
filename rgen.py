@@ -553,7 +553,7 @@ def noteWeight(note:str):
     ? = 1  odd questions about students
     """
 
-    stab = {'1':100,'2':100,'3':100,'4':100,'5':100,'6':100,'7':100,'8':100,'9':100,
+    stab = {'A':300, '1':100,'2':100,'3':100,'4':100,'5':100,'6':100,'7':100,'8':100,'9':100,
             '%':50, '!':10, '*':3, '?':1, ' ':0 }
     score = 0
     for ch in note:
@@ -776,12 +776,13 @@ def mgrc(stdscr_in):
         if error != "":
             stdscr.addstr(3,0, error)
         error = ""
+        Atitle = "Assignment         points    %weight[def] %weight[v1]  %weight[v2]   "
         if m == 0 or m == 6:
             s = arrayRowSelect(stdscr, summStudGrades, 5, 0, 0, 12, 0, s, True)
             sort = menuInputH(stdscr, menu2, 3, 0, 10, 0, sort, True)
         else:
-            stdscr.addstr(4, 0, "          points    %weight")
-            s = arrayRowSelect(stdscr, cAss, 5, 0, 0, 8, 50, s, True)
+            stdscr.addstr(4, 0, Atitle)
+            s = arrayRowSelect(stdscr, cAss, 5, 0, 0, 12, 50, s, True)
         
         m = menuInputH(stdscr, menu, 2, 0, 10, 0, m, False)
         
@@ -821,8 +822,8 @@ def mgrc(stdscr_in):
             m = menuInputH(stdscr, menu, 2, 0, 10, 0, m, True)
             if m == 5:
                 stdscr.addstr(3, 0, "Import myCanvas Grades for Which Assignment")
-            stdscr.addstr(4, 0, "          points    %weight")
-            s = arrayRowSelect(stdscr, cAss, 5, 0, 0, 8, 50, s, False)
+            stdscr.addstr(4, 0, Atitle)
+            s = arrayRowSelect(stdscr, cAss, 5, 0, 0, 12, 50, s, False)
             if m == 2:
                 showGrades(stdscr, cAss[s][0], 1, None)
             elif m == 3:
