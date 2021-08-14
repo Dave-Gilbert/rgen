@@ -274,14 +274,17 @@ def gradeQ(stdscr, HwkCommCodesList: list, q: str, rubric, acs: int, ass: str, s
     return HwkCommCodesList, cont, acs, filterq
 
 
-def enterGrades(stdscr, ass: str, s):
+def enterGrades(stdscr, ass: str, s, selectStudent: bool):
     """
     Show a list of students to grade for a particular assignment, select student to grade
 
     @param stdscr: root curses window object
     @param ass: assignment name
     @param s: previous student selection
+    @param selectStudent show the student selection menu, or not if false
     """
+
+    assert selectStudent or s > 0
 
     pathR=os.getcwd()+'/course_data/assignments/'+ass+'/0_rubric.csv'
     rubric = importCSV(pathR)
@@ -302,8 +305,9 @@ def enterGrades(stdscr, ass: str, s):
            return
        if s == 0 or s >= len(klist) - 2:           
            s = 1 
-       stdscr.addstr(2, 0, "Select Student to Grade for " + ass)
-       s = arrayRowSelect(stdscr, klist, 3, 0, 0, 0, 50, s, False)
+       if selectStudent or filterq != None:
+           stdscr.addstr(2, 0, "Select Student to Grade for " + ass)
+           s = arrayRowSelect(stdscr, klist, 3, 0, 0, 0, 50, s, False)
        studkey = klist[s][0]
        if studkey == "" or studkey[0] == ' ':
            break
@@ -366,7 +370,7 @@ def showGradeDetails(stdscr, hwkComments: list, klistQs: list, klistItem: list, 
     @param stdInfo: student info, name and e-mail address
     @param ass: assignment name
     @param rubric: assignment rubric
-    @param mg: previous menu selection
+    @param mg: previous menu selection, if -1 then only "Back" will be shown.
 
     @return: current menu selection, menu selection integer
 
@@ -378,7 +382,11 @@ def showGradeDetails(stdscr, hwkComments: list, klistQs: list, klistItem: list, 
     stdscr.addstr(6, 0, "ID: " + stdInfo[0])
     stdscr.addstr(8, 0, ass)
     
-    menu = ["Next", "Prev", "Edit", "Done"]
+    if mg == -1:
+        menu = ["Back"]
+        mg = 0
+    else:
+        menu = ["Next", "Prev", "Edit", "Done"]
 
     ypos = 10
     for q in klistQs[1:-2]:
@@ -421,7 +429,6 @@ def showGrades(stdscr, ass: str, s: int, filterq):
 
         stdscr.addstr(2, 0, "Select Student to Show Grade for " + ass)
         s = arrayRowSelect(stdscr, klist, 3, 0, 0, 8, 50, s, False)
-
         
         studkey = klist[s][0]
         if studkey == "":
@@ -445,7 +452,7 @@ def showGrades(stdscr, ass: str, s: int, filterq):
                 if s > 1:
                     s -= 1
             elif cont == "Edit":
-                enterGrades(stdscr, ass, s)
+                enterGrades(stdscr, ass, s, False)
                 pathR=os.getcwd()+'/course_data/assignments/'+ass+'/0_rubric.csv'
                 rubric = importCSV(pathR)                
                 klist, kdict = genStudKeysScores(rubric, ass, filterq)
@@ -646,7 +653,7 @@ def getAllStudGrades(stdList, stdDict, cAss, sort):
                 scorenum = float(score.split('/')[0])
                 scoreden = float(score.split('/')[1])
                 if scoreden > 0:
-                    tweight += float(row[2 + gradekey])                         # XXX select alt grade schemes
+                    tweight += float(row[2 + gradekey]) # XXX select alt grade schemes
                     tscore += float(row[2 + gradekey]) * scorenum / scoreden
 
         row_w_totals = allStudGrRow + [ float2str1d(studKeyVsZtimeDict[stud[0]])] + \
@@ -680,6 +687,7 @@ def showAllStudGrades(allStudGrades: list, s):
         stdscr.addstr(3, 0, allStudGrades[s][3])
         stdscr.addstr(5, 0, allStudGrades[s][2])
         stdscr.addstr(6, 0, "ID: " + allStudGrades[s][1])
+        studkey = allStudGrades[s][0]
 
         getNotes = False
         if allStudGrades[s][-1] != '':
@@ -690,7 +698,6 @@ def showAllStudGrades(allStudGrades: list, s):
 
             ass = allStudGrades[0][col]
             if '0 /0' not in allStudGrades[s][col] or ass == 'NN':
-                studkey = allStudGrades[s][0]
                 Q99Notes = ''
                 if getNotes and col < len(allStudGrades[0]) - 3:
 
@@ -698,7 +705,6 @@ def showAllStudGrades(allStudGrades: list, s):
                     rubric = importCSV(pathR)
                     q = "Q99)"
                     qRubric = getQRubric(rubric, q)
-                    pathC=os.getcwd()+'/course_data/assignments/'+ass+'/'+studkey+'.csv'
                     hwkCommCodesList, error = getHwkCommCodes(ass, studkey, rubric)
                     dispComment, commentCodesQ = getDispComments(hwkCommCodesList, qRubric, q, False)
                     sep = ''
@@ -733,8 +739,25 @@ def showAllStudGrades(allStudGrades: list, s):
             break
         else:
             if showArray[g][0] in allStudGrades[0][4:-2]:
-                showGrades(stdscr, showArray[g][0], s, None)
-                break
+                ass = showArray[g][0]
+                #showGrades(stdscr, ass, s, None)
+                #break
+
+                #
+                # Limits drill down to viewing grade details, it removes
+                # the next/prev/edit option from that display.
+                # The list of calling parameters is too complicated, 
+                # Need to identify or clarify the pinch points 
+                # for argument selection. 
+
+                pathR=os.getcwd()+'/course_data/assignments/'+ass+'/0_rubric.csv'
+                rubric = importCSV(pathR)
+                hwkCommCodesList, error = getHwkCommCodes(ass, studkey, rubric)
+
+                stdinfo = [allStudGrades[s][1], allStudGrades[s][2], allStudGrades[s][3]]
+                klist, kdict = genStudKeysScores(rubric, ass, None)
+                cont, mg = showGradeDetails(stdscr, hwkCommCodesList, klist[0], klist[s], stdinfo, ass, rubric, -1)
+                    
             
 
 
@@ -827,7 +850,7 @@ def mgrc(stdscr_in):
             if m == 2:
                 showGrades(stdscr, cAss[s][0], 1, None)
             elif m == 3:
-                enterGrades(stdscr, cAss[s][0], 0)
+                enterGrades(stdscr, cAss[s][0], 0, True)
             elif m == 4:
                 editAssRubric(stdscr, cAss[s][0], 0, "")
             elif m == 5:
