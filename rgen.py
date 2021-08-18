@@ -756,7 +756,14 @@ def showAllStudGrades(allStudGrades: list, s):
 
                 stdinfo = [allStudGrades[s][1], allStudGrades[s][2], allStudGrades[s][3]]
                 klist, kdict = genStudKeysScores(rubric, ass, None)
-                cont, mg = showGradeDetails(stdscr, hwkCommCodesList, klist[0], klist[s], stdinfo, ass, rubric, -1)
+
+                # klist will be in default order, we need to find the same row
+                # in allStudGrades, which might be sorted by grade, match by key value
+                key = allStudGrades[s][0]
+                for k2 in range(0, len(klist)):
+                    if key == klist[k2][0]:
+                        break
+                cont, mg = showGradeDetails(stdscr, hwkCommCodesList, klist[0], klist[k2], stdinfo, ass, rubric, -1)
                     
             
 
