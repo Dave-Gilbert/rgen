@@ -2,6 +2,7 @@ import csv
 import os
 import errno
 from cwidgets import *
+from pathlib import Path
 
 def getStudList():
     """
@@ -93,10 +94,20 @@ def exportCSV(path: str, outdata: list):
 
     total_exports += 1
 
-    if total_exports % 100 == 0:
+    if total_exports % 1000 == 0:
         debug(None, "Exporting a lot of files, count = " + str(total_exports))
 
-    # if backup exists, rais an exception, we were likely interrupted
+    # we use symbolic links to manage group assignments
+    # whenever we see an explicit symbolic link, assume that this points
+    # to the group grade file. 
+    #
+    
+    if Path(path).is_symlink():
+        # debug(None, "found symlink " + str(path))
+        path = str(Path(path).resolve())
+        # debug(None, "revised symlink to " + path)
+
+    # if backup exists, raise an exception, we were likely interrupted
     # while exporting data, which isn't okay.
     assert not os.path.isfile(path + '.bak'), "Error during exportCSV. Found: " + path + '.bak'
 
@@ -127,6 +138,8 @@ def buildAssDir(cAss: list):
             raise
 
     for row in cAss:
+        if row[0][0] == '_':
+            continue
         pathA=os.getcwd()+'/course_data/assignments/'+row[0]+'/'
         try:
             os.mkdir(pathA, mode=0o755)
@@ -167,18 +180,94 @@ def importZoomAttendData(stdList, stdDict):
             emailDict[email] = row[0]
         emailDict[email_alt] = row[0]
         studKeyVsZTimeDict[row[0]] = 0
+        debug
     
     pathZoom = os.getcwd()+'/course_data/Zoom_Attendance' 
     zoom_files = os.listdir(pathZoom)
 
     for zfile in zoom_files:
-        zatt = importCSV(pathZoom +'/' + zfile)
+        if not zfile.endswith(".csv"):
+            continue
+        zatt = importCSV(pathZoom + '/' + zfile)
         for row in zatt:
             if len(row) > 1 and row[1] in emailDict:
                 studkey = emailDict[row[1]]
-                studKeyVsZTimeDict[studkey] += int(row[2]) / 60
+                try:
+                    mins = int(row[2])  # XXX old Zoom participation files seem to have modified their format
+                except:
+                    mins = int(row[4])  #XXX 
+
+                studKeyVsZTimeDict[studkey] += mins / 60
 
     return studKeyVsZTimeDict
+
+def importReportAttendData(stdList, stdDict):
+    """
+    Import attendance files
+
+    @param stdList: list of all student data from fast suite
+    @param stdDict: dictionary of student keys vs. basic infor
+
+    @return: studKeyVsZTimeDict - a dictionary returning zoom view hours vs student keys
+ 
+    Originally implemented to handle .csv files from Zoom. Since I've started taking
+    attendance manually via <class>_report_NN.txt files, we now handle a new format.
+
+    000841533  Alvarez, Cipriano            |4
+
+    Expect to see student id, name, followed by "|" and some remark. 
+
+    If there is no note after the "|" treat the student as absent.
+
+    Give student 1 hour credit for any note.
+    """
+
+    idDict = {}
+    studKeyVsTimeDict = {}
+    for row in stdList:
+        # debug(None, str(row))
+        id=row[1]
+        idDict[id] = row[0]
+        studKeyVsTimeDict[row[0]] = 0
+    
+    pathZoom = os.getcwd()+'/course_data/Zoom_Attendance' 
+    txt_files = os.listdir(pathZoom)
+
+    for tfile in txt_files:
+        if not tfile.endswith(".txt"):
+            continue
+        with open(pathZoom + '/' + tfile) as file:
+            for line in file:
+                present = line.strip().split('|')
+                if len(present) == 2 and len(present[1]) > 0:
+                    stdnum = line.strip().split(' ')[0]
+                    if stdnum in idDict:
+                        stdkey = idDict[stdnum]
+                        studKeyVsTimeDict[stdkey] += 1
+
+    return studKeyVsTimeDict
+
+    
+
+def importAttendData(stdList, stdDict):
+    """
+    Import attendance files
+
+    @param stdList: list of all student data from fast suite
+    @param stdDict: dictionary of student keys vs. basic infor
+
+    @return: studKeyVsZTimeDict - a dictionary returning zoom view hours vs student keys
+    """
+
+    # we currently support two attenance file types
+
+    d1 = importZoomAttendData(stdList, stdDict)
+    d2 = importReportAttendData(stdList, stdDict)
+
+    for item in d1:
+        d1[item] = d1[item] + d2[item]
+   
+    return d1
 
 
 def importMyCanvasData(stdscr, ass: str):
@@ -212,6 +301,8 @@ def importMyCanvasData(stdscr, ass: str):
     if len(stud_files) > 2:
         for item in stud_files[1:]:
             sgrade = importCSV(pathGrades+'/'+item)
+            if (sgrade == None):
+                debug(None, "Unable to load file: " + pathGrades+'/'+item)
             if len(sgrade) !=1 or sgrade[0] != ['Q99)','0','']:
                 stdscr.addstr(3, 0, "Student Grade already populated, check directory contents and manually delete to overwrite.")
                 s = arrayRowSelect(stdscr, [['filename: ' + item, '','']] + sgrade, 5, 0, 0, 8, 0, 0, False)
@@ -233,24 +324,36 @@ def importMyCanvasData(stdscr, ass: str):
     fileCanvas = os.getcwd()+'/course_data/myCanvas_Grade_Export/'+files2d[s][0]
 
     allData = importCSV(fileCanvas)
-    # myCanvas export files use the following column format
+    # myCanvas export files use the following column format (some times... ugg) notes may or may not be there.
     # name, id, sisid, sislogin, section, notes, a1, a2, a3, ..., an, (readonly data1), ... (ro dn)
-    #
+    ignore_cols = 5
+    
     # we don't care about readonly data at the end. We want the list of assignment names a1..an
-    # points / assignment is stored in row #2,
+    # points / assignment is stored in row #2 or possibly row #3 
+    #       // canvas is inconsistent about the starting row
+    # 
+    if "Points Possible" in allData[1][0]:
+        pts_row=1
+    elif "Points Possible" in allData[2][0]:
+        pts_row=2
+    else:
+        debug(None, "Failed to parse data report correctly")
+        return
+
+
     myCanTable = []
-    for col in range(6, len(allData[0])):
-        if not 'read only' in allData[2][col]: # ignore data at the end of the table
-            myCanTable += [[allData[0][col], '/ '+ allData[2][col]]]
+    for col in range(ignore_cols, len(allData[0])):
+        if not 'read only' in allData[pts_row][col]: # ignore data at the end of the table
+            myCanTable += [[allData[0][col], '/ '+ allData[pts_row][col]]]
 
     assCanTable = arrayRowSelect(stdscr, myCanTable, 14, 0, 0, 8, 0, 0, False)
-    assAllData = assCanTable + 6  # selection menu will be offset by six
+    assAllData = assCanTable + ignore_cols  # selection menu will be offset by ignore_cols 
 
     total = ((myCanTable[assCanTable][1].split('/')[1]).split('.')[0])
 
     newRubric = [['Total',total, ''],
                  ['','',''],
-                 ['Q1)',total,':H Imported from '+files2d[s][0]],
+                 ['Q1)',total,':h Imported from '+files2d[s][0]],
                  ['Q1.1','', ':i Imported grade'],
                  ['','',''],
                  ['Q99)',0,':H Notes'],

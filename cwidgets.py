@@ -13,6 +13,17 @@ from curses import wrapper
 
 stdscr_def = None
 
+def isfloat(number):
+
+    retval = True
+    try:
+       f = float(number)
+    except:
+        retval = False
+
+    return retval
+
+
 def debug(stdscr, arg):
     """
     Print a debugging message at the top of the current window
@@ -45,21 +56,23 @@ def fitItem(item: str, cWidth: int, num:bool):
         if let.isalpha():
             num = False
 
+    # always add at least 1 trailing space to cleanup any 'holes' between columns
+
     if num:
         # don't trim numbers, hide them if not enough space
         if len(item) < cWidth:
-            item = (" " * cWidth + item + " ")[-cWidth:]
+            item = (" " * cWidth + item + " ")[-cWidth:] + " "
         else:
-            item = (" " * cWidth + "... > ")[-cWidth:]
+            item = (" " * cWidth + "... > ")[-cWidth:] + " "
     else:
         if len(item) < cWidth - 1:
-            item = (" " + item + " " * cWidth)[:cWidth]
+            item = (" " + item + " " * cWidth)[:cWidth] + " "
         else:
             if cWidth < 12:
             # conservative trimming for narrow fields
-                item = (" " + item + " " * cWidth)[:cWidth - 1] + ">"
+                item = (" " + item + " " * cWidth)[:cWidth - 1] + "> "
             else:
-                item = (" " + item + " " * cWidth)[:cWidth - 5] + " .. >"
+                item = (" " + item + " " * cWidth)[:cWidth - 5] + " .. > "
 
     return item
 
@@ -142,7 +155,6 @@ def arrayDrawItems(stdscr, py:int, px:int, array: list, maxy:int, maxx:int,
                                 # only do one extra line for non select case
                                 item = fitItem(out_str, spaceLeft, False)
                                 stdscr.addstr(py + row - shift + xtra_lines, pos, item)
-                                # debug(None, (row, sel, nowait))
                                 break
                             stdscr.addstr(py + row - shift + xtra_lines, pos, item)
                         out_str = out_str[out_spc:]
@@ -186,7 +198,7 @@ def arrayRowSelect(stdscr, array: list, py: int, px: int, maxpy: int, minw: int,
     @param sel: the initial selection, 0 == first row
     @param nowait: - just display, don't wait for input
 
-    @return: integer representing selection, 0 .. len(list) - 1
+    @return: integer representing selection, 0 .. len(list) - 1, -1 on cancel
     """
 
     assert maxpy > py or maxpy == 0
@@ -197,6 +209,8 @@ def arrayRowSelect(stdscr, array: list, py: int, px: int, maxpy: int, minw: int,
     assert(rows > 0)
 
     cols = len(array[0])
+    # debug(None,str(array[0]))
+    
 
     maxy, maxx = stdscr.getmaxyx()
     maxy = min(maxy, py + len(array))
@@ -218,6 +232,8 @@ def arrayRowSelect(stdscr, array: list, py: int, px: int, maxpy: int, minw: int,
     c = 0
     while True:
 
+        if c == 27:   # esc
+            return -1
         if c == 258:  # down
             sel = sel + 1
         elif c == 259: # up
@@ -229,7 +245,13 @@ def arrayRowSelect(stdscr, array: list, py: int, px: int, maxpy: int, minw: int,
                 sel = sel + 5
             else:
                 sel = sel + 1
-
+        elif c == 262: #home
+            sel = 0
+        elif c == 360: #end
+            if sel < len(array) - 4:
+                sel = len(array) - 4
+            else:
+                sel += 1
         elif c == 10: # enter
             return sel
 
@@ -290,16 +312,20 @@ def menuInputH(stdscr, menu :list, py: int, px: int, minw: int, maxw: int, sel: 
     c = 0
     while True:
 
+        if c == 27: # esc
+            return -1
         if c == curses.KEY_RIGHT:
             if sel < len(dmenu) - 1:
                 sel = sel + 1
         elif c == curses.KEY_LEFT:
             if sel > 0:
                 sel = sel - 1
+        elif c == 262: # home                
+            sel = 0
+        elif c == 360: #end
+            sel = len(dmenu) -1
         elif c == 10: # enter
             return sel
-
-
 
         # draw all items
         pos = px + 1
@@ -393,6 +419,8 @@ def input(stdscr, prompt: str, orig :str, py: int, px: int) -> str:
     c = 0
     while True:
 
+        if c == 27: # esc
+            return None
         if c == curses.KEY_RIGHT:
             if x < len(orig):
                 x = x + 1
@@ -439,7 +467,7 @@ def input(stdscr, prompt: str, orig :str, py: int, px: int) -> str:
         else:
             stdscr.addstr(0,0, "key = " + str(c))
    
-        displayInp(stdscr,  orig, py, px, x, ins)
+        displayInp(stdscr, orig, py, px, x, ins)
     
         c = stdscr.getch()
  

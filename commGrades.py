@@ -121,17 +121,21 @@ def updateScoreFrComments(q: str, qi: int, qRubric: list, hwkCommCodes, ass: str
         dispComment, commentCodesQ = getDispComments(hwkCommCodes, qRubric, q, False)
         strscore = ''
         for row in dispComment:
-            if row[0] == '':
+            cind = row[0].find(dPfix + ':')  # search for prefix and colon            
+            if cind >= 0:  
+                comment = row[0][cind + len(dPfix):]  # strip the comment display prefix
                 m='!'
                 if ass == 'NN':
                     m = '*'
-                    if row[2][0] == ':' and row[2][1] in '123456789':
-                        m = row[2][1]  # use digits 1-9 for alt grading schemes
-                if row[2][0] == ':' and row[2][1] in '?%A':
-                    m = row[2][1]
+                    if comment[0] == ':' and comment[1] in '123456789':
+                        m = comment[1]  # use digits 1-9 for alt grading schemes
+                # if comment[0] == ':' and comment[1] in '?%A':
+                if comment[0] == ':':
+                    m = comment[1]
                 strscore += m
         if strscore != '':
             N99 += strscore
+                    
     glist += [strscore]
 
     return error, fmatch, errc, avgs, cnts, N99, glist, total
@@ -144,6 +148,8 @@ def genStudKeysScores(rubric, ass, filterq):
     @param filterq - select only students with specific comments, on Q#) or Q#. None to match all
 
     @return table and dictionary including student keys, and scores for specific assignment
+
+    # XXX lots of the code checks klist, we should be checking kdict, klist includes extra output.
     """
 
     assert filterq == None or '.' in filterq or ')' in filterq, "Bad filter option= '" + filterq + "'"
@@ -158,9 +164,14 @@ def genStudKeysScores(rubric, ass, filterq):
         if ')' in row[0]:
             qlist += [row[0]]
 
+   #
+    #
+    hist = [0,0,0,0,0,0,0]
+ 
     klist = [[""] + qlist + ["total"]]
     avgs = [0] * (len(klist[0]) - 1)
     cnts = [0] * (len(klist[0]) - 1)
+    cntsgt0= [0] * (len(klist[0]) - 1)
     mpts = [0] * (len(klist[0]) - 1)
     
     kdict = {}
@@ -176,8 +187,8 @@ def genStudKeysScores(rubric, ass, filterq):
         hwkCommCodes, error = getHwkCommCodes(ass, studkey, rubric)
         assert error == ""
 
-        total = 0
-        maxsc = 0
+        total = 0   # student total score, sum across all Qs
+        maxsc = 0   # max possible score / assignment
         stot = ''
         N99 = ''
         qi = 0
@@ -187,11 +198,13 @@ def genStudKeysScores(rubric, ass, filterq):
                 if hcom[0] == q:
                     break
             qRubric = getQRubric(rubric, q)
-            maxsc += int(qRubric[0][1])
-            mpts[qi] = int(qRubric[0][1])
+            if qRubric[0][1] != " ":  # single space is a special case for bonuses / demerits
+                maxsc += float(qRubric[0][1])
+                mpts[qi] = float(qRubric[0][1])
             if hcom[2] != '':
                error, fmatch, errc, avgs, cnts, N99, glist, total =  updateScoreFrComments(
-                  q, qi, qRubric, hwkCommCodes, ass, fmatch, hcom, filterq, total, errc, avgs, cnts, N99, glist)
+                      q, qi, qRubric, hwkCommCodes, ass, fmatch, hcom, filterq, total, errc, avgs, cnts, N99, glist)
+
                if error == '':
                   update_tot = True  # if any question gets a comment, show the total
             else:
@@ -201,30 +214,75 @@ def genStudKeysScores(rubric, ass, filterq):
         if update_tot:
             stot = float2str1d(total) + ' /' + str(maxsc)
 
-
-        if fmatch:
-            avgs[qi] += total
-            cnts[qi] += 1
+        # histogram, by ind
+        # 0=0s, 1=1%-24%, 2=25%-49%, 3=50% - 69%, 4=70%-79%, 5=80%-89%, 6=90%-100%
+ 
+        if fmatch:   # is this part of final grade average calculation?
             if '/' in stot:
+                avgs[qi] += total # per question average total score across all studs
+                cnts[qi] += 1     # count of questions with a score
+                if total > 0:     
+                    cntsgt0[qi] += 1 # counts if score > 0
+
+                    hgr = total / maxsc
+                    if hgr <.25:
+                        hist[1] = hist[1] + 1
+                    elif hgr <.5:
+                        hist[2] = hist[2] + 1
+                    elif hgr <.65:
+                        hist[3] = hist[3] + 1
+                    elif hgr < .8:
+                        hist[4] = hist[4] + 1
+                    elif hgr < .9:
+                        hist[5] = hist[5] + 1
+                    else:
+                        hist[6] = hist[6] + 1
+                else:
+                    hist[0] = hist[0] + 1
+
                 mpts[qi] = float(stot.split('/')[1].strip())
             klist += [[studkey] + glist + [stot]]
             kdict[studkey] = [stot, N99]
     
     avgstr = ['    average']
-    for qi in range(0, len(avgs)):
+    for qi in range(0, len(avgs)):      # rendering the last row
         if cnts[qi] == 0 or mpts[qi] == 0:
             avgstr += ['']
         else:
+            avgst2 = ''
+            if qi == (len(avgs) - 1):   # last colum, last row tricky calcs
+                if (cntsgt0[qi] > 0):
+                    av2 = avgs[qi]/cntsgt0[qi] # average when scores all >0
+                    avgst2 = '|'+str(int(round(100 *av2/mpts[qi],0)))+'%'
+                tfcounts = str(cnts[qi])+', '+str(cntsgt0[qi])+'>0'
+                klist[0][len(klist[0])-1] = "tot " + tfcounts
             av = avgs[qi]/cnts[qi]
             avgstr += [str(round(av, 1))+
-                    '='+str(int(round(100 * av/mpts[qi],0)))+'%']
+                    '='+str(int(round(100 * av/mpts[qi],0)))+'%' + avgst2]
+            
     klist += [[''] * len(avgstr)]
     klist += [avgstr]
+    klist += [[''] * len(avgstr)]
     if errc > 0:
-        klist += [[''] * len(avgstr)]
         klist += [[' ' + str(errc) + ' errors, ' + errl] + [''] * (len(avgstr) - 1)]
+    else:
+        # generate a histogram of results.
+   
+        if cnts[qi]> 0 and mpts[qi] > 0:        
+            klist += [['  grade =  0%', str(hist[0])] +  [''] * (len(avgstr) -2)]
+            klist += [['  grade =  1% - 24%', str(hist[1])] + [''] * (len(avgstr) -2)]
+            klist += [['  grade = 25% - 49%', str(hist[2])] + [''] * (len(avgstr) -2)]
+            klist += [['  grade = 50% - 64%', str(hist[3])] + [''] * (len(avgstr) -2)]
+            klist += [['  grade = 65% - 79%', str(hist[4])] + [''] * (len(avgstr) -2)]
+            klist += [['  grade = 80% - 89%', str(hist[5])] + [''] * (len(avgstr) -2)]
+            klist += [['  grade = 90% - 100%', str(hist[6])] + [''] * (len(avgstr) -2)]
+
 
     return klist, kdict
+
+# display prefix. MyCanvas strips out all leading spaces.
+# This helps by indenting comments under questions
+dPfix = "-> "
 
 def getDispComments(AllHwkCommCodes: list, qRubric: list, q: str, stdview: bool):
     """
@@ -248,19 +306,22 @@ def getDispComments(AllHwkCommCodes: list, qRubric: list, q: str, stdview: bool)
                 error, calc_ok, g = grCalc(q, row[2], qRubric)
                 assert calc_ok, error
                 if error == '':
-                    gr = float2str1d(g) + ' /' + row[1]
+                    gr = ' ' + float2str1d(g) + ' /' + row[1] +': '
                 elif calc_ok:
                     gr = error + ' ('+float2str1d(g)+')'
                 else:
                     gr = error
                 
             # hide certain details in the student's view
-            if stdview and qRubric[0][2][0:2] == ":h": # hide description
-                    dispComment += [[q, gr, ""]]
+            if stdview and qRubric[0][2][0:2] == ":h": # hide question #
+                # XXX dispComment += [["", gr, qRubric[0][2][2:].lstrip()]]
+                dispComment += [[str(gr + qRubric[0][2][2:]).strip()]]
             elif stdview and qRubric[0][2][0:2] == ":H": # hide all question info 
-                    dispComment += [["","",""]]
+                # XXX dispComment += [["","",""]]
+                dispComment += [[""]]
             else:
-                dispComment += [[q, gr, ". . . " + qRubric[0][2]]]
+                # XXX dispComment += [[q, gr, qRubric[0][2]]]
+                dispComment += [[str(q + gr + qRubric[0][2]).strip()]]
 
             if commentCodesQ != ['']:
                 # display items in the same order that they appear in rubric
@@ -277,11 +338,13 @@ def getDispComments(AllHwkCommCodes: list, qRubric: list, q: str, stdview: bool)
                             pts = "( "+pts+" pts )"
 
                             if stdview and ritem[2][0:2] == ':n':
-                                dispComment += [["", pts, ritem[2][2:]]]
+                                # XXX dispComment += [["", pts, dPfix + ritem[2][2:].lstrip()]]
+                                dispComment += [[str(pts + dPfix + ritem[2][2:]).strip()]]
                             elif stdview and ritem[2][0:2] == ':i':
                                 pass # don't show import details in student view
-                            else:
-                                dispComment += [["", pts, ritem[2]]]
+                            else:                                
+                                # XXX dispComment += [["", pts, dPfix + ritem[2]]]
+                                dispComment += [[str(pts + dPfix + ritem[2]).strip()]]
                                 reorderedCommentCodesQ += [cCode]
 
                         elif "  " + cCode == ritem[0]:
@@ -289,7 +352,14 @@ def getDispComments(AllHwkCommCodes: list, qRubric: list, q: str, stdview: bool)
                             if ritem[1] != "":
                                 pts = "("+ritem[1]+" pts )"
 
-                            dispComment += [["", pts, ritem[2]]]
+                            if stdview and ritem[2][0:2] == ':H':
+                                pass # hide comment in student view
+                            elif stdview and q == "Q0)":
+                                # hide group member details in studentview
+                                dispComment +=  [[str(pts + dPfix + ritem[2].split()[0]).strip()]]
+                            else:
+                                # XXX dispComment += [["", pts, dPfix + ritem[2]]]
+                                dispComment += [[str(pts + dPfix + ritem[2]).strip()]]
                             reorderedCommentCodesQ += [cCode]
 
     return dispComment, reorderedCommentCodesQ
@@ -310,11 +380,15 @@ def showHwkComments(stdscr, allHwkCommCodes: list, qRubric: list, q: str, py: in
 
     dispComment, commentCodesQ = getDispComments(allHwkCommCodes, qRubric, q, stdview)
 
+    ### If there are no comments, there is no grade to display in stdview, not sure if the graded
+    ### question should be display in all cases. Creates issues in some cases.
+    
     if commentCodesQ == ['']:
-        sel = arrayRowSelect(stdscr, dispComment, py, 0, 0, 8, 0, sel, True)
+        if not stdview:
+            sel = arrayRowSelect(stdscr, dispComment, py, 0, 0, 11, 0, sel, True)
         return -1, ''
 
-    sel = arrayRowSelect(stdscr, dispComment, py, 0, 0, 8, 0, sel, nowait)
+    sel = arrayRowSelect(stdscr, dispComment, py, 0, 0, 11, 0, sel, nowait)
     if nowait:
         return len(dispComment), ''
 
@@ -336,7 +410,10 @@ def grCalc(q: str, comCodes: str, qRubric: list):
         return 0
     
     glist = []
-    maxgr = float(qRubric[0][1])
+    if qRubric[0][1] == ' ':
+        maxgr = 0
+    else:
+        maxgr = float(qRubric[0][1])
     allneg = True
     settot = 0
     for com in comList:
@@ -344,11 +421,14 @@ def grCalc(q: str, comCodes: str, qRubric: list):
         # raw gradevalue
         if '{' in com:            
             strg = (com.split('{')[1]).split('}')[0]
-            if strg == '':
+            if strg == '' or strg == 'EX':
                 strg = '0'
             glist += [strg]
             settot += 1
-            maxgr = float(strg)
+            try:
+                maxgr = float(strg)
+            except:
+                assert False, "failed to convert string to float:'" + strg + "' while looking at com: " + com + " for Question " + str(qRubric[0])
             continue
         
         match = False
@@ -356,7 +436,7 @@ def grCalc(q: str, comCodes: str, qRubric: list):
             if "  " + com == rrow[0]:
                 match = True
                 break
-        assert match, "Comment Code '" + com + "' from list '"+comCodes+"'not found in Rubric " + str(qRubric)
+        assert match, "\n\nComment Code '" + com + "' from list '"+comCodes+"' not found in Rubric \n"
 
         # found rubric row that matches the comment from the comment list
         if rrow[1].isspace() or rrow[1] == '' or rrow[1] == '#.#':
@@ -378,10 +458,11 @@ def grCalc(q: str, comCodes: str, qRubric: list):
         if gr[0] in '+-':
             maxgr += float(gr)
 
-    if maxgr < 0:
-        error = "Grade < 0, " + comCodes
-    if maxgr > float(qRubric[0][1]):
-        error = "Grade > " + qRubric[0][1]+ ", " + comCodes
+    if qRubric[0][1] != ' ':  # XXX ' ' is a special case for bonuses or demerits
+        if maxgr < 0:
+            error = "Grade < 0, " + comCodes
+        if maxgr > float(qRubric[0][1]):
+            error = "Grade > " + qRubric[0][1]+ ", " + comCodes
 
     return error, True, maxgr
 
